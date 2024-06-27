@@ -9,24 +9,17 @@ import {
   ContentSection,
   formContainerStyle,
   Alignment,
-  Animation,
   black,
   white,
-  woad,
-  TypographyPropsVariantOverrides,
+  marine,
 } from 'goobs-repo'
 
 interface PhoneNumberVerificationProps {
   phoneNumber: string
-  registrationToken: string
-  onSubmitRoute: string
-  onBackRoute: string
 }
 
 export default function PhoneNumberVerification({
   phoneNumber,
-  onSubmitRoute,
-  onBackRoute,
 }: PhoneNumberVerificationProps) {
   const router = useRouter()
 
@@ -35,7 +28,7 @@ export default function PhoneNumberVerification({
       const isValid = await verifyUser(phoneNumber, verificationCode)
       if (isValid) {
         console.log('Phone number verification successful')
-        router.push(onSubmitRoute)
+        router.push('/dashboard')
       } else {
         console.error('Phone number verification failed')
       }
@@ -54,115 +47,118 @@ export default function PhoneNumberVerification({
   }
 
   const handleBack = () => {
-    router.push(onBackRoute)
+    router.push('/auth/login')
   }
 
-  const contentSectionPropsStep3 = {
+  const contentSectionProps = {
     grids: [
       {
         grid: {
           gridconfig: {
-            gridname: 'phoneVerification',
+            gridname: 'phoneVerificationForm',
             alignment: 'left' as Alignment,
-            marginbottom: 2,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        bodytitle: {
-          fontcolor: black.main,
-          fontvariant: 'merrih4' as keyof TypographyPropsVariantOverrides,
-          text: 'Verify your phone number',
-          columnconfig: {
-            row: 1,
-            column: 1,
-            gridname: 'phoneVerification',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            animation: 'none' as Animation,
+        typography: [
+          {
+            fontcolor: black.main,
+            text: 'Phone Verification',
+            fontvariant: 'merrih3' as const,
+            columnconfig: {
+              row: 1,
+              column: 1,
+              marginbottom: 1,
+              gridname: 'phoneVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+            },
           },
-        },
-        paragraph: {
-          fontcolor: black.main,
-          fontvariant: 'merrih6' as keyof TypographyPropsVariantOverrides,
-          text: 'Text Message Verification',
-          columnconfig: {
-            row: 2,
-            column: 1,
-            gridname: 'phoneVerification',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            marginbottom: 0.5,
-            animation: 'none' as Animation,
+          {
+            fontcolor: black.main,
+            text: 'Verify your phone number',
+            fontvariant: 'merrih4' as const,
+            columnconfig: {
+              row: 2,
+              column: 1,
+              marginbottom: 1,
+              gridname: 'phoneVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+            },
           },
-        },
-      },
-      {
-        grid: {
-          gridconfig: {
-            gridname: 'confirmationCode',
-            alignment: 'left' as Alignment,
-            margintop: 2,
-            marginbottom: 2,
-            gridwidth: '100%',
-            animation: 'none' as Animation,
+          {
+            fontcolor: black.main,
+            fontvariant: 'merrih4' as const,
+            text: `Text Message Verification for ${phoneNumber}`,
+            columnconfig: {
+              row: 3,
+              column: 1,
+              gridname: 'phoneVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+              marginbottom: 1,
+            },
           },
-        },
-        confirmationcodeinput: {
-          columnconfig: {
-            row: 1,
-            column: 1,
-            gridname: 'confirmationCode',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            animation: 'none' as Animation,
+        ],
+        styledcomponent: [
+          {
+            label: 'Verification Code',
+            outlinecolor: black.main,
+            componentvariant: 'textfield' as const,
+            shrunklabellocation: 'onnotch' as const,
+            name: 'verificationCode',
+            columnconfig: {
+              row: 4,
+              column: 1,
+              gridname: 'phoneVerificationForm',
+              alignment: 'left' as Alignment,
+              marginbottom: 1,
+            },
           },
-          isValid: false,
-        },
+        ],
       },
       {
         grid: {
           gridconfig: {
             gridname: 'phoneVerificationActions',
-            alignment: 'left' as Alignment,
-            margintop: 2,
+            alignment: 'center' as Alignment,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
         button: [
           {
             text: 'Resend Text',
-            fontcolor: black.main,
+            fontcolor: white.main,
             variant: 'contained' as const,
-            backgroundcolor: woad.main,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
             columnconfig: {
               row: 1,
               column: 1,
+              margintop: 1,
               gridname: 'phoneVerificationActions',
               alignment: 'center' as Alignment,
-              columnwidth: '50%',
-              animation: 'none' as Animation,
+              columnwidth: '33.3%',
             },
-            formname: 'phoneverificationform',
-            name: 'resendText',
             onClick: handleResend,
           },
           {
             text: 'Verify Text',
+            fontcolor: white.main,
             variant: 'contained' as const,
-            fontcolor: black.main,
-            backgroundcolor: woad.main,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
             columnconfig: {
               row: 1,
               column: 2,
+              margintop: 1,
               gridname: 'phoneVerificationActions',
               alignment: 'center' as Alignment,
-              columnwidth: '50%',
-              animation: 'none' as Animation,
+              columnwidth: '33.3%',
             },
-            formname: 'phoneverificationform',
-            name: 'verifyText',
             onClick: async () => {
               const verificationCode = document.querySelector<HTMLInputElement>(
                 'input[name="verificationCode"]'
@@ -171,6 +167,23 @@ export default function PhoneNumberVerification({
                 await handleSubmit(verificationCode)
               }
             },
+          },
+          {
+            text: 'Back',
+            fontcolor: white.main,
+            variant: 'contained' as const,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
+            columnconfig: {
+              row: 1,
+              column: 3,
+              margintop: 1,
+              gridname: 'phoneVerificationActions',
+              alignment: 'center' as Alignment,
+              columnwidth: '33.3%',
+            },
+            onClick: handleBack,
           },
         ],
       },
@@ -182,14 +195,12 @@ export default function PhoneNumberVerification({
             margintop: 2,
             marginbottom: 2,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        paragraph: [
+        typography: [
           {
             fontcolor: black.main,
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            fontvariant: 'merrih6' as const,
             text: 'Please wait a minute and if you still have not received the verification text then click the resend button. If you resend and still do not receive the text please go back and confirm your phone number.',
             columnconfig: {
               row: 1,
@@ -197,13 +208,12 @@ export default function PhoneNumberVerification({
               gridname: 'phoneVerificationInfo',
               alignment: 'left' as Alignment,
               columnwidth: '100%',
-              animation: 'none' as Animation,
+              marginbottom: 1,
             },
           },
           {
             fontcolor: black.main,
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            fontvariant: 'merrih6' as const,
             text: 'After phone number verification, proceed with the next steps.',
             columnconfig: {
               row: 2,
@@ -211,7 +221,6 @@ export default function PhoneNumberVerification({
               gridname: 'phoneVerificationInfo',
               alignment: 'left' as Alignment,
               columnwidth: '100%',
-              animation: 'none' as Animation,
             },
           },
         ],
@@ -219,32 +228,24 @@ export default function PhoneNumberVerification({
       {
         grid: {
           gridconfig: {
-            gridname: 'step3Actions',
-            alignment: 'left' as Alignment,
-            margintop: 2,
+            gridname: 'phoneVerificationLinks',
+            alignment: 'center' as Alignment,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        button: [
+        link: [
           {
-            text: 'Back',
-            fontcolor: white.main,
-            backgroundcolor: black.main,
-            variant: 'contained' as const,
-            width: '100%',
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            link: '/auth/login',
+            text: 'Back to Login',
+            fontcolor: marine.main,
             columnconfig: {
               row: 1,
               column: 1,
-              gridname: 'step3Actions',
-              alignment: 'right' as Alignment,
-              columnwidth: '50%',
-              marginright: 1,
-              animation: 'none' as Animation,
+              gridname: 'phoneVerificationLinks',
+              alignment: 'center' as Alignment,
+              columnwidth: '100%',
+              margintop: 1,
             },
-            onClick: handleBack,
           },
         ],
       },
@@ -254,7 +255,7 @@ export default function PhoneNumberVerification({
   return (
     <Dialog open maxWidth="xs" fullWidth>
       <Box component="form" sx={formContainerStyle}>
-        <ContentSection grids={contentSectionPropsStep3.grids} />
+        <ContentSection grids={contentSectionProps.grids} />
       </Box>
     </Dialog>
   )

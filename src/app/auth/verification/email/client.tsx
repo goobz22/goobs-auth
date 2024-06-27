@@ -9,42 +9,32 @@ import {
   ContentSection,
   formContainerStyle,
   Alignment,
-  Animation,
   black,
   white,
-  woad,
-  TypographyPropsVariantOverrides,
+  marine,
 } from 'goobs-repo'
 
 interface EmailVerificationProps {
   email: string
-  registrationToken: string
-  onSubmitRoute: string
-  onBackRoute: string
 }
 
-export default function EmailVerification({
-  email,
-  registrationToken,
-  onSubmitRoute,
-  onBackRoute,
-}: EmailVerificationProps) {
+export default function EmailVerification({ email }: EmailVerificationProps) {
   const router = useRouter()
 
   const handleSubmit = async (verificationCode: string) => {
     const formData = new FormData()
     formData.append('verificationCode', verificationCode)
 
-    const result = await receiveVerificationEmail(formData, registrationToken)
+    const result = await receiveVerificationEmail(formData)
 
     if (result?.status === 'success') {
-      router.push(onSubmitRoute)
+      router.push('/dashboard')
     }
   }
 
   const handleResendEmail = async () => {
     try {
-      await sendVerificationEmail({ to: email, registrationToken })
+      await sendVerificationEmail({ to: email })
       console.log('Verification email resent successfully')
     } catch (error) {
       console.error('Error resending verification email:', error)
@@ -52,118 +42,118 @@ export default function EmailVerification({
   }
 
   const handleBack = () => {
-    router.push(onBackRoute)
+    router.push('/auth/login')
   }
 
-  const contentSectionPropsStep2 = {
+  const contentSectionProps = {
     grids: [
       {
         grid: {
           gridconfig: {
-            gridname: 'emailVerification',
+            gridname: 'emailVerificationForm',
             alignment: 'left' as Alignment,
-            marginbottom: 2,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        bodytitle: {
-          fontcolor: black.main,
-          fontvariant: 'merrih4' as keyof TypographyPropsVariantOverrides,
-          text: 'Secure and verify your email',
-          columnconfig: {
-            row: 1,
-            column: 1,
-            gridname: 'emailVerification',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            animation: 'none' as Animation,
+        typography: [
+          {
+            fontcolor: black.main,
+            text: 'Email Verification',
+            fontvariant: 'merrih3' as const,
+            columnconfig: {
+              row: 1,
+              column: 1,
+              marginbottom: 1,
+              gridname: 'emailVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+            },
           },
-        },
-        paragraph: {
-          fontcolor: black.main,
-          fontvariant: 'merrih6' as keyof TypographyPropsVariantOverrides,
-          text: `Email Verification for ${email}`,
-          columnconfig: {
-            row: 2,
-            column: 1,
-            gridname: 'emailVerification',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            marginbottom: 0.5,
-            animation: 'none' as Animation,
+          {
+            fontcolor: black.main,
+            text: 'Secure and verify your email',
+            fontvariant: 'merrih4' as const,
+            columnconfig: {
+              row: 2,
+              column: 1,
+              marginbottom: 1,
+              gridname: 'emailVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+            },
           },
-        },
-      },
-      {
-        grid: {
-          gridconfig: {
-            gridname: 'confirmationCode',
-            alignment: 'left' as Alignment,
-            margintop: 2,
-            marginbottom: 2,
-            gridwidth: '100%',
-            animation: 'none' as Animation,
+          {
+            fontcolor: black.main,
+            fontvariant: 'merrih4' as const,
+            text: `Email Verification for ${email}`,
+            columnconfig: {
+              row: 3,
+              column: 1,
+              gridname: 'emailVerificationForm',
+              alignment: 'left' as Alignment,
+              columnwidth: '100%',
+              marginbottom: 1,
+            },
           },
-        },
-        confirmationcodeinput: {
-          columnconfig: {
-            row: 1,
-            column: 1,
-            gridname: 'confirmationCode',
-            alignment: 'left' as Alignment,
-            columnwidth: '100%',
-            animation: 'none' as Animation,
+        ],
+        styledcomponent: [
+          {
+            label: 'Verification Code',
+            outlinecolor: black.main,
+            componentvariant: 'textfield' as const,
+            shrunklabellocation: 'onnotch' as const,
+            name: 'verificationCode',
+            columnconfig: {
+              row: 4,
+              column: 1,
+              gridname: 'emailVerificationForm',
+              alignment: 'left' as Alignment,
+              marginbottom: 1,
+            },
           },
-          isValid: false,
-        },
+        ],
       },
       {
         grid: {
           gridconfig: {
             gridname: 'emailVerificationActions',
-            alignment: 'left' as Alignment,
-            margintop: 1,
-            marginbottom: 1,
+            alignment: 'center' as Alignment,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
         button: [
           {
             text: 'Resend Email',
-            fontcolor: black.main,
+            fontcolor: white.main,
             variant: 'contained' as const,
-            backgroundcolor: woad.main,
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
             columnconfig: {
               row: 1,
               column: 1,
+              margintop: 1,
               gridname: 'emailVerificationActions',
               alignment: 'center' as Alignment,
-              columnwidth: '50%',
-              animation: 'none' as Animation,
+              columnwidth: '33.3%',
             },
-            formname: 'emailverificationform',
-            name: 'resendEmail',
             onClick: handleResendEmail,
           },
           {
             text: 'Verify Email',
+            fontcolor: white.main,
             variant: 'contained' as const,
-            fontcolor: black.main,
-            backgroundcolor: woad.main,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
             columnconfig: {
               row: 1,
               column: 2,
+              margintop: 1,
               gridname: 'emailVerificationActions',
               alignment: 'center' as Alignment,
-              columnwidth: '50%',
-              animation: 'none' as Animation,
+              columnwidth: '33.3%',
             },
-            formname: 'emailverificationform',
-            name: 'verifyEmail',
             onClick: async () => {
               const verificationCode = document.querySelector<HTMLInputElement>(
                 'input[name="verificationCode"]'
@@ -172,6 +162,23 @@ export default function EmailVerification({
                 await handleSubmit(verificationCode)
               }
             },
+          },
+          {
+            text: 'Back',
+            fontcolor: white.main,
+            variant: 'contained' as const,
+            backgroundcolor: black.main,
+            width: '100px',
+            fontvariant: 'merriparagraph' as const,
+            columnconfig: {
+              row: 1,
+              column: 3,
+              margintop: 1,
+              gridname: 'emailVerificationActions',
+              alignment: 'center' as Alignment,
+              columnwidth: '33.3%',
+            },
+            onClick: handleBack,
           },
         ],
       },
@@ -183,14 +190,12 @@ export default function EmailVerification({
             margintop: 2,
             marginbottom: 2,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        paragraph: [
+        typography: [
           {
             fontcolor: black.main,
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            fontvariant: 'merrih6' as const,
             text: 'Please wait a minute and if you still have not received the verification email then click the resend button. If you resend and still do not receive the email go back and make sure you used the correct email address.',
             columnconfig: {
               row: 1,
@@ -198,11 +203,12 @@ export default function EmailVerification({
               gridname: 'emailVerificationInfo',
               alignment: 'left' as Alignment,
               columnwidth: '100%',
-              animation: 'none' as Animation,
+              marginbottom: 1,
             },
           },
           {
             fontcolor: black.main,
+            fontvariant: 'merrih6' as const,
             text: 'After email verification, proceed with the next steps.',
             columnconfig: {
               row: 2,
@@ -210,7 +216,6 @@ export default function EmailVerification({
               gridname: 'emailVerificationInfo',
               alignment: 'left' as Alignment,
               columnwidth: '100%',
-              animation: 'none' as Animation,
             },
           },
         ],
@@ -218,32 +223,24 @@ export default function EmailVerification({
       {
         grid: {
           gridconfig: {
-            gridname: 'step2Actions',
-            alignment: 'left' as Alignment,
-            margintop: 2,
+            gridname: 'emailVerificationLinks',
+            alignment: 'center' as Alignment,
             gridwidth: '100%',
-            animation: 'none' as Animation,
           },
         },
-        button: [
+        link: [
           {
-            text: 'Back',
-            fontcolor: white.main,
-            backgroundcolor: black.main,
-            variant: 'contained' as const,
-            width: '100%',
-            fontvariant:
-              'merriparagraph' as keyof TypographyPropsVariantOverrides,
+            link: '/auth/login',
+            text: 'Back to Login',
+            fontcolor: marine.main,
             columnconfig: {
               row: 1,
               column: 1,
-              gridname: 'step2Actions',
-              alignment: 'right' as Alignment,
-              columnwidth: '50%',
-              marginright: 1,
-              animation: 'none' as Animation,
+              gridname: 'emailVerificationLinks',
+              alignment: 'center' as Alignment,
+              columnwidth: '100%',
+              margintop: 1,
             },
-            onClick: handleBack,
           },
         ],
       },
@@ -253,7 +250,7 @@ export default function EmailVerification({
   return (
     <Dialog open maxWidth="xs" fullWidth>
       <Box component="form" sx={formContainerStyle}>
-        <ContentSection grids={contentSectionPropsStep2.grids} />
+        <ContentSection grids={contentSectionProps.grids} />
       </Box>
     </Dialog>
   )
