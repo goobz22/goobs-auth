@@ -1,0 +1,23 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "next",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
+    "no-empty": "warn",
+    "no-case-declarations": "warn",
+    "react/display-name": "warn",
+    "no-useless-catch": "warn",
+    "react/no-unescaped-entities": "warn",
+    "react-hooks/rules-of-hooks": "warn",
+    "prettier/prettier": "warn",
+    "@typescript-eslint/ban-ts-comment": "off"
+  }
+}
