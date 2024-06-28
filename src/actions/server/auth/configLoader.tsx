@@ -24,6 +24,7 @@ export type AuthStep =
   | { step: number; type: 'emailAndPasswordAndVerifyPasswordVerification' }
   | { step: number; type: 'emailVerification' }
   | { step: number; type: 'textMessageVerification' }
+  | { step: number; type: 'accountInfo' }
 
 interface Authentication {
   forgotPassword: AuthStep[]
@@ -125,6 +126,7 @@ async function validateConfig(config: AuthConfig): Promise<void> {
           'emailAndPasswordAndVerifyPasswordVerification',
           'emailVerification',
           'textMessageVerification',
+          'accountInfo',
         ].includes(step.type)
       ) {
         console.error(
