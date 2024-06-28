@@ -1,0 +1,16 @@
+{
+  "algorithm": "aes-256-gcm",
+  "storageDir": "./storage",
+  "secureDir": "./.secure",
+  "keyFileName": "encryption_key",
+  "ivFileName": "encryption_iv",
+  "keyCheckIntervalMs": 86400000,
+  "keyRotationIntervalMs": 7776000000,
+  "compressionLevel": -1,
+  "cacheSize": 10000,
+  "cacheMaxAge": 86400000,
+  "persistenceInterval": 600000,
+  "maxMemoryUsage": 1073741824,
+  "evictionPolicy": "lru",
+  "forceReset": false
+}
