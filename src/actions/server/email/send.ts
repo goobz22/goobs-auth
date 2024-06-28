@@ -1,6 +1,7 @@
 'use server'
-
 import nodemailer, { TransportOptions, SentMessageInfo } from 'nodemailer'
+import generateVerificationCode from '../auth/verification/generateCode'
+import { setReusableStore } from 'goobs-repo'
 
 interface EmailOptions {
   to: string
@@ -10,6 +11,16 @@ interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<void> {
   try {
+    // Generate verification code
+    const verificationCode = await generateVerificationCode()
+
+    // Store the verification code
+    await setReusableStore(
+      `email_verification_${options.to}`,
+      { type: 'string', value: verificationCode },
+      new Date(Date.now() + 10 * 60 * 1000)
+    ) // 10 minutes expiration
+
     // Create a transporter using SMTP transport
     const transportOptions: TransportOptions = {
       host: 'smtp.office365.com',
@@ -20,7 +31,6 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
         pass: process.env.EMAIL_PASSWORD,
       },
     } as TransportOptions
-
     const transporter = nodemailer.createTransport(transportOptions)
 
     // Compose the email message
@@ -28,7 +38,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       from: 'Your Name <support@technologiesunlimited.net>',
       to: options.to,
       subject: options.subject,
-      html: options.html,
+      html: `${options.html}<br><br>Your verification code is: ${verificationCode}`,
     }
 
     // Send the email
