@@ -30,6 +30,10 @@
       },
       {
         "step": 2,
+        "type": "accountInfo"
+      },
+      {
+        "step": 3,
         "type": "textMessageVerification"
       }
     ],
