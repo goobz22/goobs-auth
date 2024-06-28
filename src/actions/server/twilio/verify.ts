@@ -1,5 +1,5 @@
 'use server'
-import Twilio from 'twilio'
+import { getReusableStore, deleteReusableStore } from 'goobs-repo'
 
 interface UserData {
   phoneNumber: string
@@ -9,31 +9,30 @@ const verifyUser = async (
   phoneNumber: UserData['phoneNumber'],
   code: string
 ): Promise<boolean> => {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken = process.env.TWILIO_AUTH_TOKEN
-  const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID
-
-  if (!accountSid || !authToken || !serviceSid) {
-    throw new Error('Twilio environment variables are not properly set')
-  }
-
   if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
     throw new Error('Invalid or missing phone number')
   }
-
   if (typeof code !== 'string' || code.trim() === '') {
     throw new Error('Invalid or missing verification code')
   }
 
-  const client = Twilio(accountSid, authToken)
-
   try {
     console.log('Verifying code')
-    const verificationCheck = await client.verify.v2
-      .services(serviceSid)
-      .verificationChecks.create({ to: phoneNumber, code })
-    console.log(`Verification result: ${verificationCheck.status}`)
-    return verificationCheck.status === 'approved'
+    const storedCode = await getReusableStore(`sms_verification_${phoneNumber}`)
+
+    if (
+      storedCode &&
+      storedCode.type === 'string' &&
+      storedCode.value === code
+    ) {
+      // Code is valid, remove it from storage
+      await deleteReusableStore(`sms_verification_${phoneNumber}`)
+      console.log(`Verification successful for ${phoneNumber}`)
+      return true
+    } else {
+      console.log(`Verification failed for ${phoneNumber}`)
+      return false
+    }
   } catch (error) {
     console.error('Error verifying code:', error)
     throw error
