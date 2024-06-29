@@ -2,6 +2,7 @@
 import nodemailer, { TransportOptions, SentMessageInfo } from 'nodemailer'
 import generateVerificationCode from '../auth/verification/generateCode'
 import { setReusableStore } from 'goobs-repo'
+import loadAuthConfig from '../auth/configLoader'
 
 interface EmailOptions {
   to: string
@@ -11,6 +12,9 @@ interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<void> {
   try {
+    // Load the auth configuration
+    const config = await loadAuthConfig()
+
     // Generate verification code
     const verificationCode = await generateVerificationCode()
 
@@ -21,21 +25,29 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       new Date(Date.now() + 10 * 60 * 1000)
     ) // 10 minutes expiration
 
+    // SMTP setup using config
+    const { host, port, secure, auth, from } = config.smtp
+
+    if (!host || !port || !auth.user || !auth.pass) {
+      throw new Error('SMTP configuration is not properly set in .auth.json')
+    }
+
     // Create a transporter using SMTP transport
     const transportOptions: TransportOptions = {
-      host: 'smtp.office365.com',
-      port: 587,
-      secure: false,
+      host,
+      port,
+      secure,
       auth: {
-        user: 'support@technologiesunlimited.net',
-        pass: process.env.EMAIL_PASSWORD,
+        user: auth.user,
+        pass: auth.pass,
       },
     } as TransportOptions
+
     const transporter = nodemailer.createTransport(transportOptions)
 
     // Compose the email message
     const message: nodemailer.SendMailOptions = {
-      from: 'Your Name <support@technologiesunlimited.net>',
+      from,
       to: options.to,
       subject: options.subject,
       html: `${options.html}<br><br>Your verification code is: ${verificationCode}`,
@@ -49,3 +61,5 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     throw error
   }
 }
+
+export default sendEmail

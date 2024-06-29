@@ -12,6 +12,10 @@ interface UserModel {
     path: string
     exportName: string
   }
+  deleteUser: {
+    path: string
+    exportName: string
+  }
 }
 
 interface Database {
@@ -32,10 +36,29 @@ interface Authentication {
   login: AuthStep[]
 }
 
+interface TwilioConfig {
+  accountSid: string
+  authToken: string
+  phoneNumber: string
+}
+
+interface SMTPConfig {
+  host: string
+  port: number
+  secure: boolean
+  auth: {
+    user: string
+    pass: string
+  }
+  from: string
+}
+
 export interface AuthConfig {
   userModel: UserModel
   database: Database
   authentication: Authentication
+  twilio: TwilioConfig
+  smtp: SMTPConfig
 }
 
 export async function loadAuthConfig(configPath?: string): Promise<AuthConfig> {
@@ -88,7 +111,8 @@ async function validateConfig(config: AuthConfig): Promise<void> {
   if (
     !config.userModel ||
     !config.userModel.getUser ||
-    !config.userModel.setUser
+    !config.userModel.setUser ||
+    !config.userModel.deleteUser
   ) {
     console.error('Invalid userModel configuration')
     throw new Error('Invalid userModel configuration')
@@ -143,6 +167,32 @@ async function validateConfig(config: AuthConfig): Promise<void> {
   await validateSteps(config.authentication.forgotPassword, 'forgotPassword')
   await validateSteps(config.authentication.registration, 'registration')
   await validateSteps(config.authentication.login, 'login')
+
+  console.log('Validating Twilio configuration')
+  if (
+    !config.twilio ||
+    !config.twilio.accountSid ||
+    !config.twilio.authToken ||
+    !config.twilio.phoneNumber
+  ) {
+    console.error('Invalid Twilio configuration')
+    throw new Error('Invalid Twilio configuration')
+  }
+
+  console.log('Validating SMTP configuration')
+  if (
+    !config.smtp ||
+    !config.smtp.host ||
+    !config.smtp.port ||
+    typeof config.smtp.secure !== 'boolean' ||
+    !config.smtp.auth ||
+    !config.smtp.auth.user ||
+    !config.smtp.auth.pass ||
+    !config.smtp.from
+  ) {
+    console.error('Invalid SMTP configuration')
+    throw new Error('Invalid SMTP configuration')
+  }
 
   console.log('Config validation completed successfully')
 }
