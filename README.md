@@ -1,18 +1,14 @@
-# goobs-repo
+# goobs-auth
 
-goobs-repo is a collection of reusable components and utilities for building web applications with React and Next.js. It provides a set of tools to streamline development and enhance functionality.
+goobs-auth
 
-The NPM repo is available here - https://www.npmjs.com/package/goobs-next-auth
-
-This entire repository is written in typescript and there is no need for a types/ install file
+The NPM repo is available here - https://www.npmjs.com/package/goobs-auth
 
 ## Version
 
-Current version: 0.1 (beta)
-
 Install will not be working via npm until beta level of stability reached in .5. Massive changes but this worked succesfully in a repo local to the auth need to externalize it and this is part of that process.
 
-## Integrating goobs-repo with Next.js
+## Integrating goobs-auth with Next.js
 
 This guide explains how to integrate the goobs-next-auth package with a Next.js project
 
