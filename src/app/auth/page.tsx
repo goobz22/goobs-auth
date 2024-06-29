@@ -13,8 +13,8 @@ import {
   white,
   marine,
   TypographyPropsVariantOverrides,
-  setReusableStore,
 } from 'goobs-repo'
+import { set } from 'goobs-cache'
 import loadAuthConfig, {
   AuthConfig,
   AuthStep,
@@ -69,7 +69,7 @@ const AuthPageInner: React.FC = () => {
       data[key] = value.toString()
     }
     setFormData(prevData => ({ ...prevData, ...data }))
-    await setReusableStore(
+    await set(
       `${authMode}FormData`,
       { type: 'hash', value: data },
       new Date(Date.now() + 24 * 60 * 60 * 1000)
@@ -447,7 +447,7 @@ const AuthPageInner: React.FC = () => {
                 formname: 'accountInfoForm',
               } as ExtendedButtonProps,
             ]
-          : currentStepConfig.type === 'emailVerification'
+            : currentStepConfig.type === 'emailVerification'
             ? [
                 {
                   text: 'Verify Email',
