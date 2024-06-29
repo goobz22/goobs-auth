@@ -1,6 +1,6 @@
 {
-  "name": "goobs-next-auth",
-  "version": "0.1.2",
+  "name": "goobs-auth",
+  "version": "0.1.3",
   "type": "module",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -48,22 +48,21 @@
     "eslint-config-next": "^14.2.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "prettier": "3.3.2",
+    "prettier": "^3.3.2",
     "typescript": "^5.5.2"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/goobz22/goobs-next-auth.git"
+    "url": "https://github.com/goobz22/goobs-auth.git"
   },
   "bugs": {
-    "url": "https://github.com/goobz22/goobs-next-auth/issues"
+    "url": "https://github.com/goobz22/goobs-auth/issues"
   },
-  "homepage": "https://github.com/goobz22/goobs-next-auth#readme",
+  "homepage": "https://github.com/goobz22/goobs-auth#readme",
   "files": [
     "src"
   ],
   "keywords": [
-    "next",
     "auth",
     "login",
     "signup",

@@ -447,7 +447,7 @@ const AuthPageInner: React.FC = () => {
                 formname: 'accountInfoForm',
               } as ExtendedButtonProps,
             ]
-            : currentStepConfig.type === 'emailVerification'
+          : currentStepConfig.type === 'emailVerification'
             ? [
                 {
                   text: 'Verify Email',

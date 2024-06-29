@@ -18,7 +18,7 @@ const sendSMS = async (
       const config = await loadAuthConfig()
 
       const verificationCode = await generateVerificationCode()
-      
+
       // Store the verification code using setReusableStore
       await setReusableStore(
         `sms_verification_${phoneNumber}`,
@@ -27,10 +27,16 @@ const sendSMS = async (
       ) // 10 minutes expiration
 
       // Twilio setup using config
-      const { accountSid, authToken, phoneNumber: twilioPhoneNumber } = config.twilio
+      const {
+        accountSid,
+        authToken,
+        phoneNumber: twilioPhoneNumber,
+      } = config.twilio
 
       if (!accountSid || !authToken || !twilioPhoneNumber) {
-        throw new Error('Twilio configuration is not properly set in .auth.json')
+        throw new Error(
+          'Twilio configuration is not properly set in .auth.json'
+        )
       }
 
       const client = twilio(accountSid, authToken)
