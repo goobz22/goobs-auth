@@ -7,6 +7,10 @@
     "setUser": {
       "path": "src/mongo/user/userModel.ts",
       "exportName": "setUser"
+    },
+    "deleteUser": {
+      "path": "src/mongo/user/userModel.ts",
+      "exportName": "deleteUser"
     }
   },
   "database": {
@@ -47,5 +51,20 @@
         "type": "emailVerification"
       }
     ]
+  },
+  "twilio": {
+    "accountSid": "YOUR_TWILIO_ACCOUNT_SID",
+    "authToken": "YOUR_TWILIO_AUTH_TOKEN",
+    "phoneNumber": "YOUR_TWILIO_PHONE_NUMBER"
+  },
+  "smtp": {
+    "host": "smtp.office365.com",
+    "port": 587,
+    "secure": false,
+    "auth": {
+      "user": "support@technologiesunlimited.net",
+      "pass": "YOUR_EMAIL_PASSWORD"
+    },
+    "from": "Your Name <support@technologiesunlimited.net>"
   }
 }

@@ -1,8 +1,8 @@
 'use server'
-
 import generateVerificationCode from '../auth/verification/generateCode'
 import { setReusableStore } from 'goobs-repo'
 import twilio from 'twilio'
+import loadAuthConfig from '../auth/configLoader'
 
 interface UserData {
   phoneNumber: string
@@ -14,8 +14,11 @@ const sendSMS = async (
   console.log(`Original phone number: ${phoneNumber}`)
   if (typeof phoneNumber === 'string' && phoneNumber.trim() !== '') {
     try {
-      const verificationCode = await generateVerificationCode()
+      // Load the auth configuration
+      const config = await loadAuthConfig()
 
+      const verificationCode = await generateVerificationCode()
+      
       // Store the verification code using setReusableStore
       await setReusableStore(
         `sms_verification_${phoneNumber}`,
@@ -23,13 +26,11 @@ const sendSMS = async (
         new Date(Date.now() + 10 * 60 * 1000)
       ) // 10 minutes expiration
 
-      // Twilio setup
-      const accountSid = process.env.TWILIO_ACCOUNT_SID
-      const authToken = process.env.TWILIO_AUTH_TOKEN
-      const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER
+      // Twilio setup using config
+      const { accountSid, authToken, phoneNumber: twilioPhoneNumber } = config.twilio
 
       if (!accountSid || !authToken || !twilioPhoneNumber) {
-        throw new Error('Twilio environment variables are not properly set')
+        throw new Error('Twilio configuration is not properly set in .auth.json')
       }
 
       const client = twilio(accountSid, authToken)
