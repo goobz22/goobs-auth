@@ -1,6 +1,7 @@
 'use server'
+
 import generateVerificationCode from '../auth/verification/generateCode'
-import { setReusableStore } from 'goobs-repo'
+import { set } from 'goobs-cache'
 import twilio from 'twilio'
 import loadAuthConfig from '../auth/configLoader'
 
@@ -12,6 +13,7 @@ const sendSMS = async (
   phoneNumber: UserData['phoneNumber']
 ): Promise<string> => {
   console.log(`Original phone number: ${phoneNumber}`)
+
   if (typeof phoneNumber === 'string' && phoneNumber.trim() !== '') {
     try {
       // Load the auth configuration
@@ -19,11 +21,12 @@ const sendSMS = async (
 
       const verificationCode = await generateVerificationCode()
 
-      // Store the verification code using setReusableStore
-      await setReusableStore(
+      // Store the verification code using set from goobs-cache
+      await set(
         `sms_verification_${phoneNumber}`,
         { type: 'string', value: verificationCode },
-        new Date(Date.now() + 10 * 60 * 1000)
+        new Date(Date.now() + 10 * 60 * 1000),
+        'client'
       ) // 10 minutes expiration
 
       // Twilio setup using config
@@ -51,6 +54,7 @@ const sendSMS = async (
       console.log(
         `SMS sent successfully to ${phoneNumber}. Message SID: ${message.sid}`
       )
+
       return 'pending'
     } catch (error) {
       console.error(`Error sending SMS to ${phoneNumber}:`, error)

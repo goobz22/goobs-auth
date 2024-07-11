@@ -1,32 +1,45 @@
 'use server'
-import { getReusableStore, deleteReusableStore } from 'goobs-repo'
+
+import { get, remove } from 'goobs-cache'
 
 interface UserData {
   phoneNumber: string
 }
 
 const verifyUser = async (
-  phoneNumber: UserData['phoneNumber'],
-  code: string
+  phoneNumber: UserData['phoneNumber']
 ): Promise<boolean> => {
   if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
     throw new Error('Invalid or missing phone number')
   }
-  if (typeof code !== 'string' || code.trim() === '') {
-    throw new Error('Invalid or missing verification code')
-  }
 
   try {
     console.log('Verifying code')
-    const storedCode = await getReusableStore(`sms_verification_${phoneNumber}`)
+
+    // Get the verification code from the 'verificationCode' atom
+    const codeResult = await get('verificationCode', 'client')
+    const code = codeResult?.value
+
+    if (typeof code !== 'string' || code.trim() === '') {
+      throw new Error('Invalid or missing verification code')
+    }
+
+    const storedCodeResult = await get(
+      `sms_verification_${phoneNumber}`,
+      'client'
+    )
 
     if (
-      storedCode &&
-      storedCode.type === 'string' &&
-      storedCode.value === code
+      storedCodeResult &&
+      storedCodeResult.value &&
+      typeof storedCodeResult.value === 'object' &&
+      'type' in storedCodeResult.value &&
+      'value' in storedCodeResult.value &&
+      storedCodeResult.value.type === 'string' &&
+      storedCodeResult.value.value === code
     ) {
       // Code is valid, remove it from storage
-      await deleteReusableStore(`sms_verification_${phoneNumber}`)
+      await remove(`sms_verification_${phoneNumber}`, 'client')
       console.log(`Verification successful for ${phoneNumber}`)
       return true
     } else {
