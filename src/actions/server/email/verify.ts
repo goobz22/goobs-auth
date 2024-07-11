@@ -1,9 +1,9 @@
 'use server'
-import { getReusableStore, deleteReusableStore } from 'goobs-repo'
+
+import { get, remove } from 'goobs-cache'
 
 interface VerifyEmailOptions {
   email: string
-  code: string
 }
 
 export async function verifyEmail(
@@ -12,23 +12,34 @@ export async function verifyEmail(
   if (typeof options.email !== 'string' || options.email.trim() === '') {
     throw new Error('Invalid or missing email')
   }
-  if (typeof options.code !== 'string' || options.code.trim() === '') {
-    throw new Error('Invalid or missing verification code')
-  }
 
   try {
     console.log('Verifying email code')
-    const storedCode = await getReusableStore(
-      `email_verification_${options.email}`
+
+    // Get the verification code from the 'verificationCode' atom
+    const codeResult = await get('verificationCode', 'client')
+    const code = codeResult?.value
+
+    if (typeof code !== 'string' || code.trim() === '') {
+      throw new Error('Invalid or missing verification code')
+    }
+
+    const storedCodeResult = await get(
+      `email_verification_${options.email}`,
+      'client'
     )
 
     if (
-      storedCode &&
-      storedCode.type === 'string' &&
-      storedCode.value === options.code
+      storedCodeResult &&
+      storedCodeResult.value &&
+      typeof storedCodeResult.value === 'object' &&
+      'type' in storedCodeResult.value &&
+      'value' in storedCodeResult.value &&
+      storedCodeResult.value.type === 'string' &&
+      storedCodeResult.value.value === code
     ) {
       // Code is valid, remove it from storage
-      await deleteReusableStore(`email_verification_${options.email}`)
+      await remove(`email_verification_${options.email}`, 'client')
       console.log(`Email verification successful for ${options.email}`)
       return true
     } else {
@@ -40,3 +51,5 @@ export async function verifyEmail(
     throw error
   }
 }
+
+export default verifyEmail

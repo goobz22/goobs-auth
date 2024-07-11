@@ -1,7 +1,8 @@
 'use server'
+
 import nodemailer, { TransportOptions, SentMessageInfo } from 'nodemailer'
 import generateVerificationCode from '../auth/verification/generateCode'
-import { setReusableStore } from 'goobs-repo'
+import { set } from 'goobs-cache'
 import loadAuthConfig from '../auth/configLoader'
 
 interface EmailOptions {
@@ -18,16 +19,16 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     // Generate verification code
     const verificationCode = await generateVerificationCode()
 
-    // Store the verification code
-    await setReusableStore(
+    // Store the verification code in the client-side cache
+    await set(
       `email_verification_${options.to}`,
       { type: 'string', value: verificationCode },
-      new Date(Date.now() + 10 * 60 * 1000)
+      new Date(Date.now() + 10 * 60 * 1000),
+      'client'
     ) // 10 minutes expiration
 
     // SMTP setup using config
     const { host, port, secure, auth, from } = config.smtp
-
     if (!host || !port || !auth.user || !auth.pass) {
       throw new Error('SMTP configuration is not properly set in .auth.json')
     }
@@ -42,7 +43,6 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
         pass: auth.pass,
       },
     } as TransportOptions
-
     const transporter = nodemailer.createTransport(transportOptions)
 
     // Compose the email message
