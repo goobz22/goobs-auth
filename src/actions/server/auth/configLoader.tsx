@@ -3,25 +3,44 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
+/**
+ * Represents the structure of the user model in the auth configuration.
+ */
 interface UserModel {
+  /** Configuration for getting a user */
   getUser: {
+    /** Path to the file containing the getUser function */
     path: string
+    /** Name of the exported getUser function */
     exportName: string
   }
+  /** Configuration for setting a user */
   setUser: {
+    /** Path to the file containing the setUser function */
     path: string
+    /** Name of the exported setUser function */
     exportName: string
   }
+  /** Configuration for deleting a user */
   deleteUser: {
+    /** Path to the file containing the deleteUser function */
     path: string
+    /** Name of the exported deleteUser function */
     exportName: string
   }
 }
 
+/**
+ * Represents the database configuration in the auth configuration.
+ */
 interface Database {
+  /** Script to connect to the database */
   connectScript: string
 }
 
+/**
+ * Represents a step in the authentication process.
+ */
 export type AuthStep =
   | { step: number; type: 'enterEmail' }
   | { step: number; type: 'emailAndPasswordVerification' }
@@ -30,37 +49,74 @@ export type AuthStep =
   | { step: number; type: 'textMessageVerification' }
   | { step: number; type: 'accountInfo' }
 
+/**
+ * Represents the authentication configuration.
+ */
 interface Authentication {
+  /** Steps for the forgot password process */
   forgotPassword: AuthStep[]
+  /** Steps for the registration process */
   registration: AuthStep[]
+  /** Steps for the login process */
   login: AuthStep[]
 }
 
+/**
+ * Represents the Twilio configuration for SMS services.
+ */
 interface TwilioConfig {
+  /** Twilio account SID */
   accountSid: string
+  /** Twilio auth token */
   authToken: string
+  /** Twilio phone number to send SMS from */
   phoneNumber: string
 }
 
+/**
+ * Represents the SMTP configuration for email services.
+ */
 interface SMTPConfig {
+  /** SMTP host */
   host: string
+  /** SMTP port */
   port: number
+  /** Whether to use a secure connection */
   secure: boolean
+  /** SMTP authentication */
   auth: {
+    /** SMTP username */
     user: string
+    /** SMTP password */
     pass: string
   }
+  /** Email address to send from */
   from: string
 }
 
+/**
+ * Represents the complete auth configuration.
+ */
 export interface AuthConfig {
+  /** User model configuration */
   userModel: UserModel
+  /** Database configuration */
   database: Database
+  /** Authentication process configuration */
   authentication: Authentication
+  /** Twilio configuration for SMS */
   twilio: TwilioConfig
+  /** SMTP configuration for email */
   smtp: SMTPConfig
 }
 
+/**
+ * Loads the auth configuration from a file.
+ *
+ * @param configPath - Optional path to the configuration file
+ * @returns A promise that resolves to the loaded AuthConfig
+ * @throws Error if the configuration file is not found or is invalid
+ */
 export async function loadAuthConfig(configPath?: string): Promise<AuthConfig> {
   console.log('loadAuthConfig called with configPath:', configPath)
 
@@ -106,6 +162,12 @@ export async function loadAuthConfig(configPath?: string): Promise<AuthConfig> {
   return config
 }
 
+/**
+ * Validates the loaded auth configuration.
+ *
+ * @param config - The auth configuration to validate
+ * @throws Error if the configuration is invalid
+ */
 async function validateConfig(config: AuthConfig): Promise<void> {
   console.log('Validating userModel')
   if (
@@ -135,6 +197,13 @@ async function validateConfig(config: AuthConfig): Promise<void> {
     throw new Error('Invalid authentication configuration')
   }
 
+  /**
+   * Validates the steps for a specific authentication process.
+   *
+   * @param steps - The steps to validate
+   * @param processName - The name of the process being validated
+   * @throws Error if the steps are invalid
+   */
   const validateSteps = async (steps: AuthStep[], processName: string) => {
     console.log(`Validating steps for ${processName}`)
     for (let index = 0; index < steps.length; index++) {
@@ -197,6 +266,12 @@ async function validateConfig(config: AuthConfig): Promise<void> {
   console.log('Config validation completed successfully')
 }
 
+/**
+ * Checks if a file exists at the given path.
+ *
+ * @param filePath - The path to check
+ * @returns A promise that resolves to true if the file exists, false otherwise
+ */
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath)
