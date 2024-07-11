@@ -1,4 +1,5 @@
 'use server'
+
 import crypto from 'crypto'
 
 export interface SerializableTokenData {
@@ -18,46 +19,43 @@ export default async function updateToken(
   const generateSecureToken = (): string => {
     const tokenLength = 32
     const tokenBytes = crypto.randomBytes(tokenLength)
-    const token = tokenBytes.toString('hex')
-    console.log('Generated secure token:', token)
-    return token
+    return tokenBytes.toString('hex')
+  }
+
+  const getExpirationDate = (expiration?: string): string => {
+    return (
+      expiration || new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString()
+    )
   }
 
   let tokenData: SerializableTokenData = {
     tokenName: options.tokenName || '',
     tokenString: options.tokenString || '',
-    tokenExpiration:
-      options.tokenExpiration ||
-      new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
-    user: options.user || crypto.randomUUID(), // Using UUID instead of ObjectId
+    tokenExpiration: getExpirationDate(options.tokenExpiration),
+    user: options.user || crypto.randomUUID(),
   }
-
-  console.log('Created token data:', tokenData)
 
   if (options.tokenName && !options.tokenString) {
     console.log('Token update requested.')
     const tokenName = options.tokenName
-    console.log('Processing token name:', tokenName)
     const token = generateSecureToken()
-    console.log(`Generated new ${tokenName} token:`, token)
-    const expirationDate =
-      options.tokenExpiration ||
-      new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString()
-    console.log(`Set ${tokenName} token expiration:`, expirationDate)
+    const expirationDate = getExpirationDate(options.tokenExpiration)
+
     tokenData = {
       ...tokenData,
       tokenName: tokenName,
       tokenString: token,
       tokenExpiration: expirationDate,
     }
+
     console.log(`Updated ${tokenName} token in tokenData:`, tokenData)
-    console.log('Token update process completed.')
+  } else if (!options.tokenName) {
+    console.log('Token name not provided. No update performed.')
   } else {
     console.log(
       'Token update not requested or tokenString provided. Using provided data.'
     )
   }
 
-  console.log('Returning tokenData:', tokenData)
   return tokenData
 }
