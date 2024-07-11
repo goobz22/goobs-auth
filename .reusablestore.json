@@ -1,9 +1,5 @@
 {
   "algorithm": "aes-256-gcm",
-  "storageDir": "./storage",
-  "secureDir": "./.secure",
-  "keyFileName": "encryption_key",
-  "ivFileName": "encryption_iv",
   "keyCheckIntervalMs": 86400000,
   "keyRotationIntervalMs": 7776000000,
   "compressionLevel": -1,
