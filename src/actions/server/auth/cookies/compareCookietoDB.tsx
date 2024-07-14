@@ -1,18 +1,29 @@
-'use server'
+import { get } from 'goobs-cache'
 
-import { cookies } from 'next/headers'
-
+/**
+ * Represents the structure of a serializable token data.
+ */
 export interface SerializableTokenData {
+  /** Optional unique identifier */
   _id?: string
+  /** Name of the token */
   tokenName: string
+  /** Token string value */
   tokenString: string
+  /** Expiration date of the token */
   tokenExpiration: Date
+  /** User associated with the token */
   user: string
 }
 
-interface ValidationResult {
-  token?: Partial<TokenData>
-  cookie?: Partial<TokenData> & {
+/**
+ * Represents the result of token validation.
+ */
+export interface ValidationResult {
+  /** Token data */
+  token?: Partial<SerializableTokenData>
+  /** Cookie data with status */
+  cookie?: Partial<SerializableTokenData> & {
     status:
       | 'valid'
       | 'onlyCookieToken'
@@ -20,7 +31,8 @@ interface ValidationResult {
       | 'invalid'
       | 'emptyTokens'
   }
-  database?: Partial<TokenData> & {
+  /** Database data with status */
+  database?: Partial<SerializableTokenData> & {
     status:
       | 'valid'
       | 'onlyCookieToken'
@@ -30,22 +42,32 @@ interface ValidationResult {
   }
 }
 
-interface TokenData extends SerializableTokenData {
-  tokenName: string
-}
-
+/**
+ * Represents an identifier object with string keys and optional string values.
+ */
 interface Identifier {
   [key: string]: string | undefined
 }
 
+/**
+ * Compares a cookie token to its database counterpart.
+ *
+ * @param tokenName - The name of the token to compare
+ * @param tokenData - The token data from the database, or null if not available
+ * @returns An object containing the validation result, identifier, and the original token data
+ */
 export default async function compareCookietoDB(
   tokenName: string,
   tokenData: SerializableTokenData | null
 ): Promise<{
   validationResult: ValidationResult
   identifier: Identifier
+  tokenData: SerializableTokenData | null
 }> {
-  const tokenString = cookies().get(tokenName)?.value
+  // Retrieve the token from the client-side cache
+  const result = await get(tokenName, 'cookie')
+  const tokenString =
+    typeof result?.value === 'string' ? result.value : undefined
   console.log(`Cookie Token (${tokenName}):`, tokenString)
 
   console.log('Token data received as prop:', tokenData)
@@ -53,6 +75,8 @@ export default async function compareCookietoDB(
   const validationResult: ValidationResult = {}
 
   console.log(`Validating ${tokenName} token...`)
+
+  // Initialize validation result with available data
   validationResult.token = {
     tokenName,
     tokenString: tokenString || '',
@@ -62,7 +86,6 @@ export default async function compareCookietoDB(
   validationResult.cookie = {
     tokenName,
     tokenString: tokenString || '',
-    tokenExpiration: undefined,
     status: 'emptyTokens',
     user: tokenData?.user || '',
   }
@@ -74,10 +97,8 @@ export default async function compareCookietoDB(
     user: tokenData?.user || '',
   }
 
-  if (
-    tokenData?.tokenExpiration &&
-    new Date(tokenData.tokenExpiration) < new Date()
-  ) {
+  // Perform token validation
+  if (tokenData?.tokenExpiration && tokenData.tokenExpiration < new Date()) {
     console.log(`${tokenName} token is expired`)
     validationResult.cookie!.status = 'cookieExpired'
     validationResult.database!.status = 'cookieExpired'
@@ -109,9 +130,16 @@ export default async function compareCookietoDB(
   console.log('Token validation completed in compareCookietoDB.')
   console.log('Validation Summary:')
 
+  /**
+   * Logs a summary of the validation results.
+   *
+   * @param name - The name of the token
+   * @param cookie - The cookie validation result
+   * @param database - The database validation result
+   */
   const validationSummary = (
     name: string,
-    cookie: Partial<TokenData> & {
+    cookie: Partial<SerializableTokenData> & {
       status:
         | 'valid'
         | 'onlyCookieToken'
@@ -119,7 +147,7 @@ export default async function compareCookietoDB(
         | 'invalid'
         | 'emptyTokens'
     },
-    database: Partial<TokenData> & {
+    database: Partial<SerializableTokenData> & {
       status:
         | 'valid'
         | 'onlyCookieToken'
@@ -156,6 +184,7 @@ export default async function compareCookietoDB(
     }
   }
 
+  // Log validation summary if both cookie and database results are available
   if (validationResult.cookie && validationResult.database) {
     validationSummary(
       tokenName,
@@ -167,5 +196,6 @@ export default async function compareCookietoDB(
   return {
     validationResult,
     identifier,
+    tokenData,
   }
 }
