@@ -1,4 +1,14 @@
-import { set } from 'goobs-cache'
+import winston from 'winston';
+import { cookie } from 'goobs-cache';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'updateCookie.log' }),
+  ],
+});
 
 /**
  * Options for updating a cookie.
@@ -7,70 +17,106 @@ interface UpdateCookieOptions {
   /** Cookie data */
   cookie: {
     /** Name of the token/cookie */
-    tokenName: string
+    tokenName: string;
     /** Token string value */
-    tokenString: string
-    /** Expiration date of the cookie */
-    expiration?: Date
+    tokenString: string;
     /** Flag to indicate if the cookie should be updated */
-    update?: boolean
+    shouldUpdateCookie?: boolean;
     /** Flag to indicate if the cookie is valid */
-    valid?: boolean
+    isCookieValid?: boolean;
     /** Status of the cookie */
-    status?: string
+    status?: string;
+  };
+}
+
+/**
+ * Validates the update cookie options.
+ *
+ * @param options - The options for updating the cookie
+ * @returns True if the options are valid, false otherwise
+ */
+function validateOptions(options: UpdateCookieOptions): boolean {
+  const { cookie: cookieData } = options;
+
+  if (!cookieData || typeof cookieData !== 'object') {
+    logger.warn('Invalid cookie options', { options });
+    return false;
+  }
+
+  if (!cookieData.tokenName || typeof cookieData.tokenName !== 'string') {
+    logger.warn('Invalid tokenName', { tokenName: cookieData.tokenName });
+    return false;
+  }
+
+  if (!cookieData.tokenString || typeof cookieData.tokenString !== 'string') {
+    logger.warn('Invalid tokenString', { tokenString: cookieData.tokenString });
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Updates a cookie in the client-side cache.
+ *
+ * @param options - The options for updating the cookie
+ * @param identifier - The identifier for the token
+ * @returns A promise that resolves when the cookie operation is completed
+ */
+export async function updateCookie(
+  options: UpdateCookieOptions,
+  identifier: string,
+): Promise<void> {
+  const { cookie: cookieData } = options;
+
+  if (!validateOptions(options)) {
+    logger.error('Invalid options provided to updateCookie', {
+      options,
+      identifier,
+    });
+    throw new Error('Invalid options provided to updateCookie');
+  }
+
+  const { tokenName, tokenString } = cookieData;
+
+  try {
+    const cookieAtom = cookie.atom(identifier, tokenName);
+    await cookieAtom.set(tokenString);
+    logger.info(`Cookie ${tokenName} updated successfully`, {
+      identifier,
+      tokenName,
+    });
+  } catch (error) {
+    logger.error(`Error updating cookie ${tokenName}`, {
+      identifier,
+      tokenName,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    throw error;
   }
 }
 
 /**
- * Updates or deletes a cookie in the client-side cache.
+ * Removes a cookie from the client-side cache.
  *
- * @param options - The options for updating the cookie
- * @returns A promise that resolves when the cookie operation is completed
+ * @param tokenName - The name of the token/cookie
+ * @param identifier - The identifier for the token
+ * @returns A promise that resolves when the cookie is removed
  */
-export default async function updateCookie(
-  options: UpdateCookieOptions
-): Promise<void> {
-  console.log('Updating cookies with options:', options)
-
-  // Define maximum age for the cookie (12 hours in seconds)
-  const maxAge = 12 * 60 * 60
-  const currentTimestamp = Date.now()
-  const cookie = options.cookie
-
-  if (cookie.update || cookie.valid) {
-    // Update or set the cookie
-    if (cookie.tokenName && cookie.tokenString) {
-      const expiration =
-        cookie.expiration || new Date(currentTimestamp + maxAge * 1000)
-
-      // Set the cookie in the client-side cache
-      await set(
-        cookie.tokenName,
-        {
-          type: 'string',
-          value: cookie.tokenString,
-        },
-        expiration,
-        'client'
-      )
-      console.log(`Cookie ${cookie.tokenName} set with expiration:`, expiration)
-    }
-  } else {
-    // Delete the cookie
-    if (cookie.tokenName) {
-      // To simulate deletion, we set an expired cookie
-      await set(
-        cookie.tokenName,
-        {
-          type: 'string',
-          value: '',
-        },
-        new Date(0),
-        'cookie'
-      )
-      console.log(`Cookie ${cookie.tokenName} deleted (set to expire)`)
-    }
+export async function removeCookie(tokenName: string, identifier: string): Promise<void> {
+  try {
+    const cookieAtom = cookie.atom(identifier, tokenName);
+    await cookieAtom.remove();
+    logger.info(`Cookie ${tokenName} removed successfully`, {
+      identifier,
+      tokenName,
+    });
+  } catch (error) {
+    logger.error(`Error removing cookie ${tokenName}`, {
+      identifier,
+      tokenName,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    throw error;
   }
-
-  console.log('Cookie operation completed')
 }
