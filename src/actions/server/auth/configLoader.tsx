@@ -1,7 +1,7 @@
-'use server'
+'use server';
 
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs } from 'fs';
+import path from 'path';
 
 /**
  * Represents the structure of the user model in the auth configuration.
@@ -10,24 +10,24 @@ interface UserModel {
   /** Configuration for getting a user */
   getUser: {
     /** Path to the file containing the getUser function */
-    path: string
+    path: string;
     /** Name of the exported getUser function */
-    exportName: string
-  }
+    exportName: string;
+  };
   /** Configuration for setting a user */
   setUser: {
     /** Path to the file containing the setUser function */
-    path: string
+    path: string;
     /** Name of the exported setUser function */
-    exportName: string
-  }
+    exportName: string;
+  };
   /** Configuration for deleting a user */
   deleteUser: {
     /** Path to the file containing the deleteUser function */
-    path: string
+    path: string;
     /** Name of the exported deleteUser function */
-    exportName: string
-  }
+    exportName: string;
+  };
 }
 
 /**
@@ -35,7 +35,7 @@ interface UserModel {
  */
 interface Database {
   /** Script to connect to the database */
-  connectScript: string
+  connectScript: string;
 }
 
 /**
@@ -47,18 +47,18 @@ export type AuthStep =
   | { step: number; type: 'emailAndPasswordAndVerifyPasswordVerification' }
   | { step: number; type: 'emailVerification' }
   | { step: number; type: 'textMessageVerification' }
-  | { step: number; type: 'accountInfo' }
+  | { step: number; type: 'accountInfo' };
 
 /**
  * Represents the authentication configuration.
  */
 interface Authentication {
   /** Steps for the forgot password process */
-  forgotPassword: AuthStep[]
+  forgotPassword: AuthStep[];
   /** Steps for the registration process */
-  registration: AuthStep[]
+  registration: AuthStep[];
   /** Steps for the login process */
-  login: AuthStep[]
+  login: AuthStep[];
 }
 
 /**
@@ -66,11 +66,11 @@ interface Authentication {
  */
 interface TwilioConfig {
   /** Twilio account SID */
-  accountSid: string
+  accountSid: string;
   /** Twilio auth token */
-  authToken: string
+  authToken: string;
   /** Twilio phone number to send SMS from */
-  phoneNumber: string
+  phoneNumber: string;
 }
 
 /**
@@ -78,20 +78,20 @@ interface TwilioConfig {
  */
 interface SMTPConfig {
   /** SMTP host */
-  host: string
+  host: string;
   /** SMTP port */
-  port: number
+  port: number;
   /** Whether to use a secure connection */
-  secure: boolean
+  secure: boolean;
   /** SMTP authentication */
   auth: {
     /** SMTP username */
-    user: string
+    user: string;
     /** SMTP password */
-    pass: string
-  }
+    pass: string;
+  };
   /** Email address to send from */
-  from: string
+  from: string;
 }
 
 /**
@@ -99,15 +99,15 @@ interface SMTPConfig {
  */
 export interface AuthConfig {
   /** User model configuration */
-  userModel: UserModel
+  userModel: UserModel;
   /** Database configuration */
-  database: Database
+  database: Database;
   /** Authentication process configuration */
-  authentication: Authentication
+  authentication: Authentication;
   /** Twilio configuration for SMS */
-  twilio: TwilioConfig
+  twilio: TwilioConfig;
   /** SMTP configuration for email */
-  smtp: SMTPConfig
+  smtp: SMTPConfig;
 }
 
 /**
@@ -118,48 +118,48 @@ export interface AuthConfig {
  * @throws Error if the configuration file is not found or is invalid
  */
 export async function loadAuthConfig(configPath?: string): Promise<AuthConfig> {
-  console.log('loadAuthConfig called with configPath:', configPath)
+  console.log('loadAuthConfig called with configPath:', configPath);
 
-  let finalConfigPath: string
+  let finalConfigPath: string;
 
   if (configPath) {
-    console.log('Using provided config path')
-    finalConfigPath = path.resolve(configPath)
+    console.log('Using provided config path');
+    finalConfigPath = path.resolve(configPath);
   } else {
-    console.log('Trying to load from main repo or local repo')
-    const mainRepoPath = path.resolve(process.cwd(), '..', '..', '.auth.json')
-    const localRepoPath = path.resolve(process.cwd(), '.auth.json')
+    console.log('Trying to load from main repo or local repo');
+    const mainRepoPath = path.resolve(process.cwd(), '..', '..', '.auth.json');
+    const localRepoPath = path.resolve(process.cwd(), '.auth.json');
 
-    console.log('Checking main repo path:', mainRepoPath)
-    console.log('Checking local repo path:', localRepoPath)
+    console.log('Checking main repo path:', mainRepoPath);
+    console.log('Checking local repo path:', localRepoPath);
 
     if (await fileExists(mainRepoPath)) {
-      console.log('Found config in main repo')
-      finalConfigPath = mainRepoPath
+      console.log('Found config in main repo');
+      finalConfigPath = mainRepoPath;
     } else if (await fileExists(localRepoPath)) {
-      console.log('Found config in local repo')
-      finalConfigPath = localRepoPath
+      console.log('Found config in local repo');
+      finalConfigPath = localRepoPath;
     } else {
-      console.error('Auth configuration file not found in main or local repo')
-      throw new Error('Auth configuration file not found in main or local repo')
+      console.error('Auth configuration file not found in main or local repo');
+      throw new Error('Auth configuration file not found in main or local repo');
     }
   }
 
-  console.log('Final config path:', finalConfigPath)
+  console.log('Final config path:', finalConfigPath);
 
   if (!(await fileExists(finalConfigPath))) {
-    console.error(`Auth configuration file not found at ${finalConfigPath}`)
-    throw new Error(`Auth configuration file not found at ${finalConfigPath}`)
+    console.error(`Auth configuration file not found at ${finalConfigPath}`);
+    throw new Error(`Auth configuration file not found at ${finalConfigPath}`);
   }
 
-  console.log('Reading config file')
-  const configContent = await fs.readFile(finalConfigPath, 'utf-8')
-  console.log('Parsing config content')
-  const config: AuthConfig = JSON.parse(configContent)
-  console.log('Validating config')
-  await validateConfig(config)
-  console.log('Config loaded and validated successfully')
-  return config
+  console.log('Reading config file');
+  const configContent = await fs.readFile(finalConfigPath, 'utf-8');
+  console.log('Parsing config content');
+  const config: AuthConfig = JSON.parse(configContent);
+  console.log('Validating config');
+  await validateConfig(config);
+  console.log('Config loaded and validated successfully');
+  return config;
 }
 
 /**
@@ -169,32 +169,32 @@ export async function loadAuthConfig(configPath?: string): Promise<AuthConfig> {
  * @throws Error if the configuration is invalid
  */
 async function validateConfig(config: AuthConfig): Promise<void> {
-  console.log('Validating userModel')
+  console.log('Validating userModel');
   if (
     !config.userModel ||
     !config.userModel.getUser ||
     !config.userModel.setUser ||
     !config.userModel.deleteUser
   ) {
-    console.error('Invalid userModel configuration')
-    throw new Error('Invalid userModel configuration')
+    console.error('Invalid userModel configuration');
+    throw new Error('Invalid userModel configuration');
   }
 
-  console.log('Validating database')
+  console.log('Validating database');
   if (!config.database || !config.database.connectScript) {
-    console.error('Invalid database configuration')
-    throw new Error('Invalid database configuration')
+    console.error('Invalid database configuration');
+    throw new Error('Invalid database configuration');
   }
 
-  console.log('Validating authentication')
+  console.log('Validating authentication');
   if (
     !config.authentication ||
     !Array.isArray(config.authentication.forgotPassword) ||
     !Array.isArray(config.authentication.registration) ||
     !Array.isArray(config.authentication.login)
   ) {
-    console.error('Invalid authentication configuration')
-    throw new Error('Invalid authentication configuration')
+    console.error('Invalid authentication configuration');
+    throw new Error('Invalid authentication configuration');
   }
 
   /**
@@ -205,12 +205,12 @@ async function validateConfig(config: AuthConfig): Promise<void> {
    * @throws Error if the steps are invalid
    */
   const validateSteps = async (steps: AuthStep[], processName: string) => {
-    console.log(`Validating steps for ${processName}`)
+    console.log(`Validating steps for ${processName}`);
     for (let index = 0; index < steps.length; index++) {
-      const step = steps[index]
+      const step = steps[index];
       if (typeof step.step !== 'number' || step.step !== index + 1) {
-        console.error(`Invalid step number in ${processName} process`)
-        throw new Error(`Invalid step number in ${processName} process`)
+        console.error(`Invalid step number in ${processName} process`);
+        throw new Error(`Invalid step number in ${processName} process`);
       }
       if (
         ![
@@ -222,33 +222,29 @@ async function validateConfig(config: AuthConfig): Promise<void> {
           'accountInfo',
         ].includes(step.type)
       ) {
-        console.error(
-          `Invalid step type in ${processName} process: ${step.type}`
-        )
-        throw new Error(
-          `Invalid step type in ${processName} process: ${step.type}`
-        )
+        console.error(`Invalid step type in ${processName} process: ${step.type}`);
+        throw new Error(`Invalid step type in ${processName} process: ${step.type}`);
       }
     }
-    console.log(`Steps for ${processName} validated successfully`)
-  }
+    console.log(`Steps for ${processName} validated successfully`);
+  };
 
-  await validateSteps(config.authentication.forgotPassword, 'forgotPassword')
-  await validateSteps(config.authentication.registration, 'registration')
-  await validateSteps(config.authentication.login, 'login')
+  await validateSteps(config.authentication.forgotPassword, 'forgotPassword');
+  await validateSteps(config.authentication.registration, 'registration');
+  await validateSteps(config.authentication.login, 'login');
 
-  console.log('Validating Twilio configuration')
+  console.log('Validating Twilio configuration');
   if (
     !config.twilio ||
     !config.twilio.accountSid ||
     !config.twilio.authToken ||
     !config.twilio.phoneNumber
   ) {
-    console.error('Invalid Twilio configuration')
-    throw new Error('Invalid Twilio configuration')
+    console.error('Invalid Twilio configuration');
+    throw new Error('Invalid Twilio configuration');
   }
 
-  console.log('Validating SMTP configuration')
+  console.log('Validating SMTP configuration');
   if (
     !config.smtp ||
     !config.smtp.host ||
@@ -259,11 +255,11 @@ async function validateConfig(config: AuthConfig): Promise<void> {
     !config.smtp.auth.pass ||
     !config.smtp.from
   ) {
-    console.error('Invalid SMTP configuration')
-    throw new Error('Invalid SMTP configuration')
+    console.error('Invalid SMTP configuration');
+    throw new Error('Invalid SMTP configuration');
   }
 
-  console.log('Config validation completed successfully')
+  console.log('Config validation completed successfully');
 }
 
 /**
@@ -274,11 +270,11 @@ async function validateConfig(config: AuthConfig): Promise<void> {
  */
 async function fileExists(filePath: string): Promise<boolean> {
   try {
-    await fs.access(filePath)
-    return true
+    await fs.access(filePath);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
-export default loadAuthConfig
+export default loadAuthConfig;
