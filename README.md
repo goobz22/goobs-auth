@@ -50,10 +50,10 @@ yarn add goobs-auth
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ['goobs-frontend', 'goobs-cache', 'goobs-auth'],
-}
+  transpilePackages: ['goobs-frontend', 'goobs-cache', 'goobs-auth', 'goobs-encryption'],
+};
 
-export default nextConfig
+export default nextConfig;
 ```
 
 2. Create an authentication configuration file (e.g., `.auth.json`) in your project root:
@@ -116,18 +116,18 @@ export default nextConfig
 
 ```tsx
 // pages/auth.tsx
-'use client'
+'use client';
 
-import React from 'react'
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
-import { AuthPageContent } from 'goobs-auth'
+import React from 'react';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { AuthPageContent } from 'goobs-auth';
 
 export default function AuthPage() {
   return (
     <AppRouterCacheProvider>
       <AuthPageContent />
     </AppRouterCacheProvider>
-  )
+  );
 }
 ```
 
@@ -135,9 +135,9 @@ export default function AuthPage() {
 
 ```typescript
 // middleware.ts
-import { authMiddleware } from 'goobs-auth'
+import { authMiddleware } from 'goobs-auth';
 
-export default authMiddleware
+export default authMiddleware;
 ```
 
 ## Configuration
