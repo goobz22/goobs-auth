@@ -3,7 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ['goobs-frontend', 'goobs-cache'],
-}
+  transpilePackages: ['goobs-frontend', 'goobs-cache', 'goobs-testing'],
+};
 
-export default nextConfig
+export default nextConfig;
