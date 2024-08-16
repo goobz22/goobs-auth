@@ -1,74 +1,74 @@
 // File: AuthSteps/EmailPasswordVerificationStep.tsx
-import React from 'react'
-import { Box } from '@mui/material'
-import { ContentSection, ContentSectionProps } from 'goobs-frontend'
+import React from 'react';
+import { Box } from '@mui/material';
+import { ContentSection, ContentSectionProps } from 'goobs-frontend';
 
 interface EmailPasswordVerificationStepProps {
-  onSubmit: () => void
-  isRegistration: boolean
+  onSubmit: () => void;
+  isRegistration: boolean;
 }
 
-const EmailPasswordVerificationStep: React.FC<
-  EmailPasswordVerificationStepProps
-> = ({ onSubmit, isRegistration }) => {
-  const styledComponent: ContentSectionProps['grids'][number]['styledcomponent'] =
-    [
-      {
-        name: 'email',
-        label: 'Email Address',
-        componentvariant: 'textfield',
-        outlinecolor: 'black',
-        shrunklabellocation: 'onnotch',
-        columnconfig: {
-          row: 1,
-          column: 1,
-          alignment: 'left',
-          columnwidth: '100%',
-          marginbottom: 0.5,
-        },
-        formname: 'emailPasswordForm',
-        'aria-label': 'Enter your email address',
-        required: true,
+const EmailPasswordVerificationStep: React.FC<EmailPasswordVerificationStepProps> = ({
+  onSubmit,
+  isRegistration,
+}) => {
+  const styledComponent: ContentSectionProps['grids'][number]['styledcomponent'] = [
+    {
+      name: 'email',
+      label: 'Email Address',
+      componentvariant: 'textfield',
+      outlinecolor: 'black',
+      shrunklabellocation: 'onnotch',
+      columnconfig: {
+        row: 1,
+        column: 1,
+        alignment: 'left',
+        columnwidth: '100%',
+        marginbottom: 0.5,
       },
-      {
-        name: 'verifyPassword',
-        label: 'Password',
-        componentvariant: 'password',
-        outlinecolor: 'black',
-        shrunklabellocation: 'onnotch',
-        columnconfig: {
-          row: 2,
-          column: 1,
-          alignment: 'left',
-          columnwidth: '100%',
-          marginbottom: 0.5,
-        },
-        formname: 'emailPasswordForm',
-        'aria-label': 'Enter your password',
-        required: true,
+      formname: 'emailPasswordForm',
+      'aria-label': 'Enter your email address',
+      required: true,
+    },
+    {
+      name: 'verifyPassword',
+      label: 'Password',
+      componentvariant: 'password',
+      outlinecolor: 'black',
+      shrunklabellocation: 'onnotch',
+      columnconfig: {
+        row: 2,
+        column: 1,
+        alignment: 'left',
+        columnwidth: '100%',
+        marginbottom: 0.5,
       },
-      ...(isRegistration
-        ? [
-            {
-              name: 'confirmPassword',
-              label: 'Confirm Password',
-              componentvariant: 'password' as const,
-              outlinecolor: 'black',
-              shrunklabellocation: 'onnotch' as const,
-              columnconfig: {
-                row: 3,
-                column: 1,
-                alignment: 'left' as const,
-                columnwidth: '100%',
-                marginbottom: 0.5,
-              },
-              formname: 'emailPasswordForm',
-              'aria-label': 'Confirm your password',
-              required: true,
+      formname: 'emailPasswordForm',
+      'aria-label': 'Enter your password',
+      required: true,
+    },
+    ...(isRegistration
+      ? [
+          {
+            name: 'confirmPassword',
+            label: 'Confirm Password',
+            componentvariant: 'password' as const,
+            outlinecolor: 'black',
+            shrunklabellocation: 'onnotch' as const,
+            columnconfig: {
+              row: 3,
+              column: 1,
+              alignment: 'left' as const,
+              columnwidth: '100%',
+              marginbottom: 0.5,
             },
-          ]
-        : []),
-    ]
+            formname: 'emailPasswordForm',
+            'aria-label': 'Confirm your password',
+            required: true,
+          },
+        ]
+      : []),
+  ];
 
   const buttonProps: ContentSectionProps['grids'][number]['button'] = [
     {
@@ -89,7 +89,7 @@ const EmailPasswordVerificationStep: React.FC<
       formname: 'emailPasswordForm',
       'aria-label': 'Continue',
     },
-  ]
+  ];
   const linkProps: ContentSectionProps['grids'][number]['link'] = [
     {
       link: '/auth',
@@ -117,7 +117,7 @@ const EmailPasswordVerificationStep: React.FC<
         margintop: 1,
       },
     },
-  ]
+  ];
 
   return (
     <Box>
@@ -145,7 +145,7 @@ const EmailPasswordVerificationStep: React.FC<
         ]}
       />
     </Box>
-  )
-}
+  );
+};
 
-export default EmailPasswordVerificationStep
+export default EmailPasswordVerificationStep;

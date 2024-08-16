@@ -1,33 +1,32 @@
 // File: AuthSteps/EnterEmailStep.tsx
-import React from 'react'
-import { Box } from '@mui/material'
-import { ContentSection, ContentSectionProps } from 'goobs-frontend'
+import React from 'react';
+import { Box } from '@mui/material';
+import { ContentSection, ContentSectionProps } from 'goobs-frontend';
 
 interface EnterEmailStepProps {
-  onSubmit: () => void
+  onSubmit: () => void;
 }
 
 const EnterEmailStep: React.FC<EnterEmailStepProps> = ({ onSubmit }) => {
-  const styledComponent: ContentSectionProps['grids'][number]['styledcomponent'] =
-    [
-      {
-        name: 'email',
-        label: 'Email Address',
-        componentvariant: 'textfield',
-        outlinecolor: 'black',
-        shrunklabellocation: 'onnotch',
-        columnconfig: {
-          row: 1,
-          column: 1,
-          alignment: 'left',
-          columnwidth: '100%',
-          marginbottom: 1,
-        },
-        formname: 'enterEmailForm',
-        'aria-label': 'Enter your email address',
-        required: true,
+  const styledComponent: ContentSectionProps['grids'][number]['styledcomponent'] = [
+    {
+      name: 'email',
+      label: 'Email Address',
+      componentvariant: 'textfield',
+      outlinecolor: 'black',
+      shrunklabellocation: 'onnotch',
+      columnconfig: {
+        row: 1,
+        column: 1,
+        alignment: 'left',
+        columnwidth: '100%',
+        marginbottom: 1,
       },
-    ]
+      formname: 'enterEmailForm',
+      'aria-label': 'Enter your email address',
+      required: true,
+    },
+  ];
 
   const buttonProps: ContentSectionProps['grids'][number]['button'] = [
     {
@@ -48,7 +47,7 @@ const EnterEmailStep: React.FC<EnterEmailStepProps> = ({ onSubmit }) => {
       formname: 'enterEmailForm',
       'aria-label': 'Continue',
     },
-  ]
+  ];
 
   const linkProps: ContentSectionProps['grids'][number]['link'] = [
     {
@@ -77,14 +76,14 @@ const EnterEmailStep: React.FC<EnterEmailStepProps> = ({ onSubmit }) => {
         margintop: 1,
       },
     },
-  ]
+  ];
 
   return (
     <Box
       component="form"
-      onSubmit={e => {
-        e.preventDefault()
-        onSubmit()
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
       }}
     >
       <ContentSection
@@ -111,7 +110,7 @@ const EnterEmailStep: React.FC<EnterEmailStepProps> = ({ onSubmit }) => {
         ]}
       />
     </Box>
-  )
-}
+  );
+};
 
-export default EnterEmailStep
+export default EnterEmailStep;
