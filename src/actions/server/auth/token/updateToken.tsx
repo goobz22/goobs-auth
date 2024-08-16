@@ -23,12 +23,10 @@ export interface SerializableTokenData {
  * Updates or generates a token based on the provided options.
  *
  * @param {Partial<SerializableTokenData>} options - The options for updating the token.
- * @returns {Promise<SerializableTokenData>} A promise that resolves to the updated token data.
+ * @returns {SerializableTokenData} The updated token data.
  * @throws {Error} If the required options are missing or invalid.
  */
-export async function updateToken(
-  options: Partial<SerializableTokenData>,
-): Promise<SerializableTokenData> {
+export function updateToken(options: Partial<SerializableTokenData>): SerializableTokenData {
   logger.debug('Starting the token update process.');
   logger.debug('Received options:', options);
 
