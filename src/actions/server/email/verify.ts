@@ -1,55 +1,51 @@
-'use server'
-
-import { get, remove } from 'goobs-cache'
+'use server';
+import { session } from 'goobs-cache';
 
 interface VerifyEmailOptions {
-  email: string
+  email: string;
 }
 
-export async function verifyEmail(
-  options: VerifyEmailOptions
-): Promise<boolean> {
+export async function verifyEmail(options: VerifyEmailOptions): Promise<boolean> {
   if (typeof options.email !== 'string' || options.email.trim() === '') {
-    throw new Error('Invalid or missing email')
+    throw new Error('Invalid or missing email');
   }
 
   try {
-    console.log('Verifying email code')
+    console.log('Verifying email code');
 
-    // Get the verification code from the 'verificationCode' atom
-    const codeResult = await get('verificationCode', 'client')
-    const code = codeResult?.value
+    // Create atoms for verification code and stored code
+    const verificationCodeAtom = session.atom<string | undefined>(undefined);
+    const storedCodeAtom = session.atom<string | undefined>(undefined);
+
+    // Use atoms to get values
+    const [verificationCode] = session.useAtom(verificationCodeAtom);
+    const [storedCode] = session.useAtom(storedCodeAtom);
+
+    // Get the verification code
+    const code = await verificationCode;
 
     if (typeof code !== 'string' || code.trim() === '') {
-      throw new Error('Invalid or missing verification code')
+      throw new Error('Invalid or missing verification code');
     }
 
-    const storedCodeResult = await get(
-      `email_verification_${options.email}`,
-      'client'
-    )
+    // Get the stored code
+    const stored = await storedCode;
 
-    if (
-      storedCodeResult &&
-      storedCodeResult.value &&
-      typeof storedCodeResult.value === 'object' &&
-      'type' in storedCodeResult.value &&
-      'value' in storedCodeResult.value &&
-      storedCodeResult.value.type === 'string' &&
-      storedCodeResult.value.value === code
-    ) {
+    if (stored && typeof stored === 'string' && stored === code) {
       // Code is valid, remove it from storage
-      await remove(`email_verification_${options.email}`, 'client')
-      console.log(`Email verification successful for ${options.email}`)
-      return true
+      const [, setStoredCode] = session.useAtom(storedCodeAtom);
+      await setStoredCode(undefined);
+
+      console.log(`Email verification successful for ${options.email}`);
+      return true;
     } else {
-      console.log(`Email verification failed for ${options.email}`)
-      return false
+      console.log(`Email verification failed for ${options.email}`);
+      return false;
     }
   } catch (error) {
-    console.error('Error verifying email code:', error)
-    throw error
+    console.error('Error verifying email code:', error);
+    throw error;
   }
 }
 
-export default verifyEmail
+export default verifyEmail;

@@ -1,55 +1,51 @@
-'use server'
-
-import { get, remove } from 'goobs-cache'
+'use server';
+import { session } from 'goobs-cache';
 
 interface UserData {
-  phoneNumber: string
+  phoneNumber: string;
 }
 
-const verifyUser = async (
-  phoneNumber: UserData['phoneNumber']
-): Promise<boolean> => {
+const verifyUser = async (phoneNumber: UserData['phoneNumber']): Promise<boolean> => {
   if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
-    throw new Error('Invalid or missing phone number')
+    throw new Error('Invalid or missing phone number');
   }
 
   try {
-    console.log('Verifying code')
+    console.log('Verifying code');
 
-    // Get the verification code from the 'verificationCode' atom
-    const codeResult = await get('verificationCode', 'client')
-    const code = codeResult?.value
+    // Create atoms for verification code and stored code
+    const verificationCodeAtom = session.atom<string | undefined>(undefined);
+    const storedCodeAtom = session.atom<string | undefined>(undefined);
+
+    // Use atoms to get values
+    const [verificationCode] = session.useAtom(verificationCodeAtom);
+    const [storedCode] = session.useAtom(storedCodeAtom);
+
+    // Get the verification code
+    const code = await verificationCode;
 
     if (typeof code !== 'string' || code.trim() === '') {
-      throw new Error('Invalid or missing verification code')
+      throw new Error('Invalid or missing verification code');
     }
 
-    const storedCodeResult = await get(
-      `sms_verification_${phoneNumber}`,
-      'client'
-    )
+    // Get the stored code
+    const stored = await storedCode;
 
-    if (
-      storedCodeResult &&
-      storedCodeResult.value &&
-      typeof storedCodeResult.value === 'object' &&
-      'type' in storedCodeResult.value &&
-      'value' in storedCodeResult.value &&
-      storedCodeResult.value.type === 'string' &&
-      storedCodeResult.value.value === code
-    ) {
+    if (stored && typeof stored === 'string' && stored === code) {
       // Code is valid, remove it from storage
-      await remove(`sms_verification_${phoneNumber}`, 'client')
-      console.log(`Verification successful for ${phoneNumber}`)
-      return true
+      const [, setStoredCode] = session.useAtom(storedCodeAtom);
+      await setStoredCode(undefined);
+
+      console.log(`Verification successful for ${phoneNumber}`);
+      return true;
     } else {
-      console.log(`Verification failed for ${phoneNumber}`)
-      return false
+      console.log(`Verification failed for ${phoneNumber}`);
+      return false;
     }
   } catch (error) {
-    console.error('Error verifying code:', error)
-    throw error
+    console.error('Error verifying code:', error);
+    throw error;
   }
-}
+};
 
-export default verifyUser
+export default verifyUser;
