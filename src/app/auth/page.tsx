@@ -5,22 +5,15 @@ import { CircularProgress } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PopupForm, PopupFormProps } from 'goobs-frontend';
 import loadAuthConfig, { AuthConfig } from '../../actions/server/auth/configLoader';
-import { verifyEmail } from '../../actions/server/email/verify';
-import { sendEmail } from '../../actions/server/email/send';
-import sendSMS from '../../actions/server/twilio/send';
-import verifyUser from '../../actions/server/twilio/verify';
 
 /** Type definition for authentication modes. */
 type AuthMode = 'login' | 'registration' | 'forgotPassword';
 
 // Lazy load the step components
-const EnterEmailStep = lazy(() => import('./AuthSteps/EnterEmailStep'));
-const EmailPasswordVerificationStep = lazy(
-  () => import('./AuthSteps/EmailPasswordVerificationStep'),
-);
-const EmailVerificationStep = lazy(() => import('./AuthSteps/EmailVerificationStep'));
-const TextMessageVerificationStep = lazy(() => import('./AuthSteps/TextMessageVerificationStep'));
-const AccountInfoStep = lazy(() => import('./AuthSteps/AccountInfoStep'));
+const EnterEmailStep = lazy(() => import('./AuthSteps/passwordlessLogin'));
+const EmailPasswordVerificationStep = lazy(() => import('./AuthSteps/signup'));
+const VerificationStep = lazy(() => import('./AuthSteps/verification'));
+const AccountInfoStep = lazy(() => import('./AuthSteps/accountInformation'));
 
 /**
  * AuthPageInner component handles the authentication process.
@@ -34,8 +27,6 @@ const AuthPageInner: React.FC = () => {
   const [authConfig, setAuthConfig] = useState<AuthConfig | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [isVerificationCodeValid, setIsVerificationCodeValid] = useState(false);
-  const [email] = useState('');
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -80,57 +71,21 @@ const AuthPageInner: React.FC = () => {
     }
   };
 
-  const handleEmailVerification = async () => {
+  const handleVerification = async () => {
     try {
-      const isValid = await verifyEmail({ email });
-      if (isValid) {
-        console.log('Email verification successful');
-        setCurrentStep(currentStep + 1);
-      } else {
-        console.log('Email verification failed');
-        setIsVerificationCodeValid(false);
-      }
+      // Verification logic will be handled in the VerificationStep component
+      console.log('Verification initiated');
     } catch (error) {
-      console.error('Error verifying email:', error);
+      console.error('Error in verification process:', error);
     }
   };
 
-  const handleResendEmail = async () => {
+  const handleResend = async () => {
     try {
-      await sendEmail({
-        to: email,
-        subject: 'Verification Code',
-        html: 'Your verification code is: ',
-      });
-      console.log('Verification email resent successfully');
+      // Resend logic will be handled in the VerificationStep component
+      console.log('Verification resend initiated');
     } catch (error) {
-      console.error('Error resending verification email:', error);
-    }
-  };
-
-  const handlePhoneVerification = async () => {
-    try {
-      const phoneNumber = ''; // Retrieve phone number from form data in child component
-      const isValid = await verifyUser(phoneNumber);
-      if (isValid) {
-        console.log('Phone number verification successful');
-        setCurrentStep(currentStep + 1);
-      } else {
-        console.log('Phone number verification failed');
-        setIsVerificationCodeValid(false);
-      }
-    } catch (error) {
-      console.error('Error verifying phone number:', error);
-    }
-  };
-
-  const handleResendSMS = async () => {
-    try {
-      const phoneNumber = ''; // Retrieve phone number from form data in child component
-      await sendSMS(phoneNumber);
-      console.log('Verification code resent successfully');
-    } catch (error) {
-      console.error('Error resending verification code:', error);
+      console.error('Error in resend process:', error);
     }
   };
 
@@ -155,27 +110,15 @@ const AuthPageInner: React.FC = () => {
           </Suspense>
         );
       case 'emailVerification':
-        return (
-          <Suspense fallback={<CircularProgress />}>
-            <EmailVerificationStep
-              onVerify={handleEmailVerification}
-              onResend={handleResendEmail}
-              isValid={isVerificationCodeValid}
-              onBack={handleBack}
-              onContinue={handleSubmit}
-              email={email}
-            />
-          </Suspense>
-        );
       case 'textMessageVerification':
         return (
           <Suspense fallback={<CircularProgress />}>
-            <TextMessageVerificationStep
-              onVerify={handlePhoneVerification}
-              onResend={handleResendSMS}
-              isValid={isVerificationCodeValid}
+            <VerificationStep
+              onVerify={handleVerification}
+              onResend={handleResend}
               onBack={handleBack}
               onContinue={handleSubmit}
+              verificationMethod={currentStepConfig.type === 'emailVerification' ? 'email' : 'sms'}
             />
           </Suspense>
         );
