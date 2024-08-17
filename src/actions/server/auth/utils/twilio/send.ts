@@ -1,9 +1,9 @@
 'use server';
 
-import generateVerificationCode from '../auth/verification/generateCode';
+import generateVerificationCode from '../generateVerificationCode';
 import { session } from 'goobs-cache';
 import twilio from 'twilio';
-import loadAuthConfig from '../auth/configLoader';
+import loadAuthConfig from '../../configLoader';
 import winston from 'winston';
 
 // Configure logger
