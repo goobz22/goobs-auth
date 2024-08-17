@@ -1,23 +1,31 @@
-// File: AuthSteps/TextMessageVerificationStep.tsx
-import React from 'react';
+// File: AuthSteps/VerificationStep.tsx
+import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import { ContentSection, ContentSectionProps } from 'goobs-frontend';
 
-interface TextMessageVerificationStepProps {
+interface VerificationStepProps {
   onVerify: () => void;
   onResend: () => void;
-  isValid: boolean;
   onBack: () => void;
   onContinue: () => void;
+  verificationMethod: 'email' | 'sms';
 }
 
-const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = ({
+const VerificationStep: React.FC<VerificationStepProps> = ({
   onVerify,
   onResend,
-  isValid,
   onBack,
   onContinue,
+  verificationMethod,
 }) => {
+  const [isValid, setIsValid] = useState(true);
+  const isEmail = verificationMethod === 'email';
+
+  const handleVerify = () => {
+    setIsValid((prev) => !prev);
+    onVerify();
+  };
+
   const confirmationCodeInput: ContentSectionProps['grids'][number]['confirmationcodeinput'] = {
     identifier: 'verificationCode',
     isValid: isValid,
@@ -28,14 +36,14 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
       columnwidth: '100%',
       marginbottom: 1,
     },
-    'aria-label': 'Enter SMS verification code',
+    'aria-label': `Enter ${isEmail ? 'email' : 'SMS'} verification code`,
     'aria-required': true,
     'aria-invalid': !isValid,
   };
 
   const verifyResendButtonProps: ContentSectionProps['grids'][number]['button'] = [
     {
-      text: 'Verify Phone',
+      text: `Verify ${isEmail ? 'Email' : 'Phone'}`,
       fontcolor: 'white',
       variant: 'contained',
       backgroundcolor: 'black',
@@ -48,12 +56,12 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
         alignment: 'center',
         columnwidth: '48%',
       },
-      onClick: onVerify,
-      formname: 'textMessageVerificationForm',
-      'aria-label': 'Verify phone number',
+      onClick: handleVerify,
+      formname: `${verificationMethod}VerificationForm`,
+      'aria-label': `Verify ${isEmail ? 'email' : 'phone number'}`,
     },
     {
-      text: 'Resend SMS',
+      text: `Resend ${isEmail ? 'Code' : 'SMS'}`,
       fontcolor: 'black',
       variant: 'outlined',
       outlinecolor: 'black',
@@ -68,14 +76,14 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
         columnwidth: '48%',
       },
       onClick: onResend,
-      formname: 'textMessageVerificationForm',
-      'aria-label': 'Resend SMS verification code',
+      formname: `${verificationMethod}VerificationForm`,
+      'aria-label': `Resend ${isEmail ? 'email' : 'SMS'} verification code`,
     },
   ];
 
   const headerTypographyProps: ContentSectionProps['grids'][number]['typography'] = [
     {
-      text: 'Verify your phone number',
+      text: isEmail ? 'Secure and verify your email' : 'Verify your phone number',
       fontvariant: 'merrih4',
       fontcolor: 'black',
       columnconfig: {
@@ -86,7 +94,7 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
       },
     },
     {
-      text: 'Text Message Verification',
+      text: `${isEmail ? 'Email' : 'Text Message'} Verification`,
       fontvariant: 'merrih6',
       fontcolor: 'black',
       columnconfig: {
@@ -101,7 +109,7 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
 
   const infoTypographyProps: ContentSectionProps['grids'][number]['typography'] = [
     {
-      text: 'Please wait a minute and if you still have not received the verification text then click the resend button. If you resend and still do not receive the text please go back and confirm your phone number.',
+      text: `Please wait a minute and if you still have not received the verification ${isEmail ? 'email' : 'text'} then click the resend button. If you resend and still do not receive the ${isEmail ? 'email' : 'text'} please go back and confirm your ${isEmail ? 'email address' : 'phone number'}.`,
       fontvariant: 'merriparagraph',
       fontcolor: 'black',
       columnconfig: {
@@ -112,7 +120,7 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
       },
     },
     {
-      text: 'After phone number verification, proceed with the next steps.',
+      text: `After ${isEmail ? 'email' : 'phone number'} verification, proceed with the next steps.`,
       fontvariant: 'merriparagraph',
       fontcolor: 'black',
       columnconfig: {
@@ -140,7 +148,7 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
         columnwidth: '48%',
       },
       onClick: onBack,
-      formname: 'textMessageVerificationForm',
+      formname: `${verificationMethod}VerificationForm`,
       'aria-label': 'Go back',
     },
     {
@@ -157,7 +165,7 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
         columnwidth: '48%',
       },
       onClick: onContinue,
-      formname: 'textMessageVerificationForm',
+      formname: `${verificationMethod}VerificationForm`,
       'aria-label': 'Continue to next step',
     },
   ];
@@ -219,4 +227,4 @@ const TextMessageVerificationStep: React.FC<TextMessageVerificationStepProps> = 
   );
 };
 
-export default TextMessageVerificationStep;
+export default VerificationStep;
