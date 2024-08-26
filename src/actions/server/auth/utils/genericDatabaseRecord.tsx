@@ -78,6 +78,7 @@ export async function databaseOperations(
   options: DatabaseOperationOptions,
 ): Promise<DatabaseOperationResult> {
   logger.debug('Starting database operation', { mode: options.mode, id: options.id });
+
   try {
     await rateLimiter.consume(options.id);
   } catch {
