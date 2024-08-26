@@ -7,15 +7,11 @@ import { PopupForm, ExtendedButtonProps, ExtendedTextFieldProps } from 'goobs-fr
 import { useAuth } from '../../../actions/server/auth/authContext';
 import { useRouter } from 'next/navigation';
 
-interface ForgotPasswordProps {
-  onSubmit: (email: string) => void;
-}
-
 const validationSchema = yup.object({
   email: yup.string().email('Enter a valid email').required('Email is required'),
 });
 
-const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSubmit }) => {
+const ForgotPassword: React.FC = () => {
   console.log('ForgotPassword: Component rendering');
   const { setAuthData } = useAuth();
   const router = useRouter();
@@ -24,7 +20,6 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSubmit }) => {
     console.log('ForgotPassword: handleSubmit called');
     console.log('ForgotPassword: Form submitted with email:', values.email);
     setAuthData({ email: values.email });
-    onSubmit(values.email);
     console.log('ForgotPassword: Attempting to navigate to forgot password text verification');
     router.push('/auth?mode=forgotPassword&step=forgotPasswordTextVerification');
   };
@@ -60,7 +55,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSubmit }) => {
         onBlur: formik.handleBlur,
       },
     ],
-    [formik], // Added formik to the dependency array
+    [formik],
   );
 
   const buttonProps = useMemo<ExtendedButtonProps[]>(
@@ -90,7 +85,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSubmit }) => {
         },
       },
     ],
-    [formik], // Added formik to the dependency array
+    [formik],
   );
 
   const linkProps = useMemo(
@@ -122,7 +117,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSubmit }) => {
         },
       },
     ],
-    [], // This useMemo doesn't depend on any variables, so the dependency array remains empty
+    [],
   );
 
   console.log('ForgotPassword: Rendering form');
