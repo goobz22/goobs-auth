@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { CircularProgress } from '@mui/material';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 /** Type definition for authentication modes. */
 type AuthMode = 'login' | 'registration' | 'forgotPassword';
@@ -37,7 +37,6 @@ const ForgotPasswordStep = lazy(() => import('./forgot-password'));
 const AuthPageInner: React.FC = () => {
   console.log('AuthPageInner: Component rendering');
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [currentStep, setCurrentStep] = useState<StepConfig>('login');
 
@@ -90,20 +89,6 @@ const AuthPageInner: React.FC = () => {
     }
   }, [searchParams]);
 
-  const handleSubmit = (nextStep: StepConfig) => {
-    console.log(`AuthPageInner: handleSubmit called with nextStep: ${nextStep}`);
-    setCurrentStep(nextStep);
-    const newUrl = `/auth?mode=${authMode}&step=${nextStep}`;
-    console.log(`AuthPageInner: Navigating to ${newUrl}`);
-    router.push(newUrl);
-  };
-
-  const handleBack = () => {
-    console.log('AuthPageInner: handleBack called');
-    // Add logic here to determine the previous step based on the current step and auth mode
-    console.log('AuthPageInner: Handling back');
-  };
-
   const renderAuthStep = () => {
     console.log(`AuthPageInner: renderAuthStep called for currentStep: ${currentStep}`);
     switch (currentStep) {
@@ -111,7 +96,7 @@ const AuthPageInner: React.FC = () => {
         console.log('AuthPageInner: Rendering LoginStep');
         return (
           <Suspense fallback={<CircularProgress />}>
-            <LoginStep onSubmit={() => handleSubmit('loginTextVerification')} />
+            <LoginStep />
           </Suspense>
         );
       case 'signup':
