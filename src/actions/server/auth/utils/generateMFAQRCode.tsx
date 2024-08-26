@@ -6,7 +6,7 @@ interface MFAQRCodeResult {
   qrCodeDataURL: string;
 }
 
-interface MFAQRCodeOptions {
+export interface MFAQRCodeOptions {
   qrCodeOptions?: QRCode.QRCodeToDataURLOptions;
   authenticatorOptions?: {
     digits?: number;
@@ -16,7 +16,7 @@ interface MFAQRCodeOptions {
 
 /**
  * Generates a secret key and QR code for MFA setup.
- * 
+ *
  * @param username - The username or identifier for the user.
  * @param appName - The name of the application for MFA.
  * @param options - Additional options for QR code and authenticator.
@@ -26,7 +26,7 @@ interface MFAQRCodeOptions {
 export async function generateMFAQRCode(
   username: string,
   appName: string,
-  options: MFAQRCodeOptions = {}
+  options: MFAQRCodeOptions = {},
 ): Promise<MFAQRCodeResult> {
   // Input validation
   if (!username || typeof username !== 'string') {
@@ -48,7 +48,11 @@ export async function generateMFAQRCode(
   const secret = authenticator.generateSecret();
 
   // Create the OTP authentication URL
-  const otpAuth = authenticator.keyuri(encodeURIComponent(username), encodeURIComponent(appName), secret);
+  const otpAuth = authenticator.keyuri(
+    encodeURIComponent(username),
+    encodeURIComponent(appName),
+    secret,
+  );
 
   try {
     // Generate QR code
@@ -59,13 +63,15 @@ export async function generateMFAQRCode(
       qrCodeDataURL,
     };
   } catch (error) {
-    throw new Error(`Failed to generate QR code: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to generate QR code: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
 /**
  * Verifies a MFA token against a secret.
- * 
+ *
  * @param token - The token to verify.
  * @param secret - The secret key to verify against.
  * @returns A boolean indicating whether the token is valid.
