@@ -2830,10 +2830,10 @@ goobs-encryption@^0.1.2:
     react-dom "^18.3.1"
     winston "^3.14.2"
 
-goobs-frontend@^0.7.68:
-  version "0.7.68"
-  resolved "https://registry.yarnpkg.com/goobs-frontend/-/goobs-frontend-0.7.68.tgz#5d98fdb4793456e49fa92c2ad1ec3299697cd28d"
-  integrity sha512-GKu/UAlRDTWSElQeXpqjKPCmiuPsPvUJyxH9fcrmt81PtnaaoHCBaTdJ6Bxj1FjO/lTBte4q6c4/64ZqDsIFwg==
+goobs-frontend@^0.7.70:
+  version "0.7.70"
+  resolved "https://registry.yarnpkg.com/goobs-frontend/-/goobs-frontend-0.7.70.tgz#8d08d558abc0d3fd4e41f00ace2b9a435069036b"
+  integrity sha512-EAj1WydRekDGV/HE0Ms3gp0gz41UiwqlAHJyI3SFBcaBW+mhkAwUNn68DxkykUY8nxqsWMUJOnFfJBjzJ1twvA==
   dependencies:
     "@emotion/cache" "^11.13.1"
     "@emotion/react" "^11.13.3"
@@ -2846,6 +2846,7 @@ goobs-frontend@^0.7.68:
     lodash "^4.17.21"
     next "14.2.6"
     react-datepicker "^7.3.0"
+    react-qr-code "^2.0.15"
 
 goobs-testing@^0.2.2:
   version "0.2.2"
@@ -4348,6 +4349,11 @@ pure-rand@^6.0.0:
   resolved "https://registry.yarnpkg.com/pure-rand/-/pure-rand-6.1.0.tgz#d173cf23258231976ccbdb05247c9787957604f2"
   integrity sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==
 
+qr.js@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
+  integrity sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==
+
 qrcode@^1.5.4:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.4.tgz#5cb81d86eb57c675febb08cf007fff963405da88"
@@ -4412,6 +4418,14 @@ react-onclickoutside@^6.13.0:
   version "6.13.1"
   resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.13.1.tgz#1f5e0241c08784b6e65745d91aca0d700c548a89"
   integrity sha512-LdrrxK/Yh9zbBQdFbMTXPp3dTSN9B+9YJQucdDu3JNKRrbdU+H+/TVONJoWtOwy4II8Sqf1y/DTI6w/vGPYW0w==
+
+react-qr-code@^2.0.15:
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/react-qr-code/-/react-qr-code-2.0.15.tgz#fbfc12952c504bcd64275647e9d1ea63251742ce"
+  integrity sha512-MkZcjEXqVKqXEIMVE0mbcGgDpkfSdd8zhuzXEl9QzYeNcw8Hq2oVIzDLWuZN2PQBwM5PWjc2S31K8Q1UbcFMfw==
+  dependencies:
+    prop-types "^15.8.1"
+    qr.js "0.0.0"
 
 react-transition-group@^4.4.5:
   version "4.4.5"
@@ -5214,7 +5228,6 @@ word-wrap@^1.2.5:
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
-  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
