@@ -2,18 +2,31 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { CircularProgress } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { PopupForm, PopupFormProps } from 'goobs-frontend';
-import loadAuthConfig, { AuthConfig } from '../../actions/server/auth/configLoader';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 /** Type definition for authentication modes. */
 type AuthMode = 'login' | 'registration' | 'forgotPassword';
 
+// Define a type for the step configurations
+type StepConfig =
+  | 'login'
+  | 'signup'
+  | 'loginTextVerification'
+  | 'signupTextVerification'
+  | 'forgotPasswordTextVerification'
+  | 'accountInfo'
+  | 'forgotPassword';
+
 // Lazy load the step components
-const EnterEmailStep = lazy(() => import('./AuthSteps/passwordlessLogin'));
-const EmailPasswordVerificationStep = lazy(() => import('./AuthSteps/signup'));
-const VerificationStep = lazy(() => import('./AuthSteps/verification'));
-const AccountInfoStep = lazy(() => import('./AuthSteps/accountInformation'));
+const LoginStep = lazy(() => import('./login'));
+const SignupStep = lazy(() => import('./signup'));
+const LoginTextVerificationStep = lazy(() => import('./login/text-verification'));
+const SignupTextVerificationStep = lazy(() => import('./signup/text-verification'));
+const ForgotPasswordTextVerificationStep = lazy(
+  () => import('./forgot-password/text-verification'),
+);
+const AccountInfoStep = lazy(() => import('./signup/accountInformation'));
+const ForgotPasswordStep = lazy(() => import('./forgot-password'));
 
 /**
  * AuthPageInner component handles the authentication process.
@@ -22,135 +35,135 @@ const AccountInfoStep = lazy(() => import('./AuthSteps/accountInformation'));
  * @returns {React.FC} The AuthPageInner component
  */
 const AuthPageInner: React.FC = () => {
-  const router = useRouter();
+  console.log('AuthPageInner: Component rendering');
   const searchParams = useSearchParams();
-  const [authConfig, setAuthConfig] = useState<AuthConfig | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
+  const router = useRouter();
   const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [currentStep, setCurrentStep] = useState<StepConfig>('login');
 
   useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const config = await loadAuthConfig();
-        setAuthConfig(config);
-        const mode = searchParams.get('mode') as AuthMode;
-        if (mode && ['login', 'registration', 'forgotPassword'].includes(mode)) {
-          setAuthMode(mode);
-        } else {
-          setAuthMode('login');
-        }
-      } catch (err) {
-        console.error('Failed to load auth config:', err);
-      }
-    };
+    console.log('AuthPageInner: useEffect triggered');
+    const mode = searchParams.get('mode') as AuthMode;
+    const step = searchParams.get('step') as StepConfig;
 
-    loadConfig();
+    console.log('AuthPageInner: Current URL parameters:', { mode, step });
+
+    if (mode && ['login', 'registration', 'forgotPassword'].includes(mode)) {
+      console.log(`AuthPageInner: Setting authMode to ${mode}`);
+      setAuthMode(mode);
+    } else {
+      console.log('AuthPageInner: Setting default authMode to login');
+      setAuthMode('login');
+    }
+
+    if (
+      step &&
+      [
+        'login',
+        'signup',
+        'loginTextVerification',
+        'signupTextVerification',
+        'forgotPasswordTextVerification',
+        'accountInfo',
+        'forgotPassword',
+      ].includes(step)
+    ) {
+      console.log(`AuthPageInner: Setting currentStep to ${step}`);
+      setCurrentStep(step);
+    } else {
+      console.log('AuthPageInner: Determining default step based on mode');
+      switch (mode) {
+        case 'registration':
+          console.log('AuthPageInner: Setting default step to signup for registration mode');
+          setCurrentStep('signup');
+          break;
+        case 'forgotPassword':
+          console.log(
+            'AuthPageInner: Setting default step to forgotPassword for forgotPassword mode',
+          );
+          setCurrentStep('forgotPassword');
+          break;
+        default:
+          console.log('AuthPageInner: Setting default step to login');
+          setCurrentStep('login');
+      }
+    }
   }, [searchParams]);
 
-  if (!authConfig) return null;
-
-  const currentSteps = authConfig.authentication[authMode];
-  const currentStepConfig = currentSteps[currentStep - 1];
-
-  const handleSubmit = async () => {
-    if (currentStep < currentSteps.length) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      console.log('Final step reached. Ready to submit all data.');
-      router.push('/dashboard');
-    }
+  const handleSubmit = (nextStep: StepConfig) => {
+    console.log(`AuthPageInner: handleSubmit called with nextStep: ${nextStep}`);
+    setCurrentStep(nextStep);
+    const newUrl = `/auth?mode=${authMode}&step=${nextStep}`;
+    console.log(`AuthPageInner: Navigating to ${newUrl}`);
+    router.push(newUrl);
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      // If we're at the first step, we might want to reset the auth mode or redirect
-      setAuthMode('login');
-      router.push('/auth');
-    }
-  };
-
-  const handleVerification = async () => {
-    try {
-      // Verification logic will be handled in the VerificationStep component
-      console.log('Verification initiated');
-    } catch (error) {
-      console.error('Error in verification process:', error);
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      // Resend logic will be handled in the VerificationStep component
-      console.log('Verification resend initiated');
-    } catch (error) {
-      console.error('Error in resend process:', error);
-    }
+    console.log('AuthPageInner: handleBack called');
+    // Add logic here to determine the previous step based on the current step and auth mode
+    console.log('AuthPageInner: Handling back');
   };
 
   const renderAuthStep = () => {
-    switch (currentStepConfig.type) {
-      case 'enterEmail':
+    console.log(`AuthPageInner: renderAuthStep called for currentStep: ${currentStep}`);
+    switch (currentStep) {
+      case 'login':
+        console.log('AuthPageInner: Rendering LoginStep');
         return (
           <Suspense fallback={<CircularProgress />}>
-            <EnterEmailStep onSubmit={handleSubmit} />
+            <LoginStep onSubmit={() => handleSubmit('loginTextVerification')} />
           </Suspense>
         );
-      case 'emailAndPasswordVerification':
-      case 'emailAndPasswordAndVerifyPasswordVerification':
+      case 'signup':
+        console.log('AuthPageInner: Rendering SignupStep');
         return (
           <Suspense fallback={<CircularProgress />}>
-            <EmailPasswordVerificationStep
-              onSubmit={handleSubmit}
-              isRegistration={
-                currentStepConfig.type === 'emailAndPasswordAndVerifyPasswordVerification'
-              }
-            />
+            <SignupStep />
           </Suspense>
         );
-      case 'emailVerification':
-      case 'textMessageVerification':
+      case 'loginTextVerification':
+        console.log('AuthPageInner: Rendering LoginTextVerificationStep');
         return (
           <Suspense fallback={<CircularProgress />}>
-            <VerificationStep
-              onVerify={handleVerification}
-              onResend={handleResend}
-              onBack={handleBack}
-              onContinue={handleSubmit}
-              verificationMethod={currentStepConfig.type === 'emailVerification' ? 'email' : 'sms'}
-            />
+            <LoginTextVerificationStep />
+          </Suspense>
+        );
+      case 'signupTextVerification':
+        console.log('AuthPageInner: Rendering SignupTextVerificationStep');
+        return (
+          <Suspense fallback={<CircularProgress />}>
+            <SignupTextVerificationStep />
+          </Suspense>
+        );
+      case 'forgotPasswordTextVerification':
+        console.log('AuthPageInner: Rendering ForgotPasswordTextVerificationStep');
+        return (
+          <Suspense fallback={<CircularProgress />}>
+            <ForgotPasswordTextVerificationStep />
           </Suspense>
         );
       case 'accountInfo':
+        console.log('AuthPageInner: Rendering AccountInfoStep');
         return (
           <Suspense fallback={<CircularProgress />}>
-            <AccountInfoStep onSubmit={handleSubmit} onBack={handleBack} />
+            <AccountInfoStep />
+          </Suspense>
+        );
+      case 'forgotPassword':
+        console.log('AuthPageInner: Rendering ForgotPasswordStep');
+        return (
+          <Suspense fallback={<CircularProgress />}>
+            <ForgotPasswordStep />
           </Suspense>
         );
       default:
+        console.log('AuthPageInner: No matching step found, returning null');
         return null;
     }
   };
 
-  const generatePopupFormProps = (): PopupFormProps => ({
-    title:
-      authMode === 'login'
-        ? 'Login'
-        : authMode === 'registration'
-          ? 'Registration'
-          : 'Reset your password',
-    description:
-      authMode === 'login'
-        ? 'Login to continue to the application'
-        : authMode === 'registration'
-          ? 'Create your account to get started'
-          : 'Type in your email to start recovery',
-    popupType: 'modal',
-    content: renderAuthStep(),
-  });
-
-  return <PopupForm {...generatePopupFormProps()} />;
+  console.log(`AuthPageInner: Current state - authMode: ${authMode}, currentStep: ${currentStep}`);
+  return renderAuthStep();
 };
 
 /**
@@ -159,6 +172,7 @@ const AuthPageInner: React.FC = () => {
  * @returns {React.FC} The AuthPageContent component
  */
 const AuthPageContent: React.FC = () => {
+  console.log('AuthPageContent: Rendering');
   return (
     <Suspense fallback={<CircularProgress aria-label="Loading authentication page" />}>
       <AuthPageInner />
