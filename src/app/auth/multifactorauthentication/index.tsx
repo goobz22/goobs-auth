@@ -3,7 +3,10 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { PopupForm, ExtendedButtonProps, ExtendedQRCodeProps } from 'goobs-frontend';
 import { useAuth } from '../../../actions/server/auth/authContext';
 import { useRouter } from 'next/navigation';
-import { generateMFAQRCode, MFAQRCodeOptions } from '../../../actions/server/auth/utils/generateMFAQRCode';
+import {
+  generateMFAQRCode,
+  MFAQRCodeOptions,
+} from '../../../actions/server/auth/utils/generateMFAQRCode';
 
 interface MFASetupProps {
   showHelperFooter?: boolean;
@@ -24,9 +27,13 @@ const MFASetup: React.FC<MFASetupProps> = () => {
         try {
           const options: MFAQRCodeOptions = {
             qrCodeOptions: { width: 200 },
-            authenticatorOptions: { digits: 6, step: 30 }
+            authenticatorOptions: { digits: 6, step: 30 },
           };
-          const { secret, qrCodeDataURL } = await generateMFAQRCode(authData.email, 'YourAppName', options);
+          const { secret, qrCodeDataURL } = await generateMFAQRCode(
+            authData.email,
+            'YourAppName',
+            options,
+          );
           setQRCodeData(qrCodeDataURL);
           setSecret(secret);
         } catch (error) {
@@ -54,7 +61,7 @@ const MFASetup: React.FC<MFASetupProps> = () => {
         },
       },
     ],
-    [qrCodeData]
+    [qrCodeData],
   );
 
   const buttonProps = useMemo<ExtendedButtonProps[]>(() => {
@@ -92,7 +99,10 @@ const MFASetup: React.FC<MFASetupProps> = () => {
   return (
     <PopupForm
       title="Set Up Multi-Factor Authentication"
-      description={error || "Scan the QR code below with your authenticator app (e.g., Google Authenticator, Microsoft Authenticator). After scanning, click 'Continue' to proceed to the verification step."}
+      description={
+        error ||
+        "Scan the QR code below with your authenticator app (e.g., Google Authenticator, Microsoft Authenticator). After scanning, click 'Continue' to proceed to the verification step."
+      }
       grids={[
         {
           grid: {
